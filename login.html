@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>登录 - 碳账户</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .login-container {
+            padding: 40px 16px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .logo-section {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .logo-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+        
+        .app-name {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2ecc71;
+            margin-bottom: 8px;
+        }
+        
+        .app-subtitle {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .login-form {
+            background-color: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 24px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.2s;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #2ecc71;
+        }
+        
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 16px;
+            transition: background-color 0.2s;
+        }
+        
+        .login-btn:hover {
+            background-color: #27ae60;
+        }
+        
+        .form-links {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+        }
+        
+        .form-links a {
+            color: #2ecc71;
+            text-decoration: none;
+        }
+        
+        .third-party-login {
+            text-align: center;
+            margin: 32px 0;
+        }
+        
+        .third-party-login .divider {
+            display: flex;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        
+        .third-party-login .divider::before,
+        .third-party-login .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background-color: #e0e0e0;
+        }
+        
+        .third-party-login .divider span {
+            padding: 0 16px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .third-party-icons {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+        }
+        
+        .third-party-icon {
+            font-size: 32px;
+            cursor: pointer;
+        }
+        
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            color: #999;
+            margin-top: auto;
+            padding-bottom: 24px;
+        }
+        
+        .footer a {
+            color: #2ecc71;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <!-- 顶部 Logo/标题 -->
+        <div class="logo-section">
+            <div class="logo-icon">🌱</div>
+            <div class="app-name">碳账户</div>
+            <div class="app-subtitle">让每一次减碳都有意义</div>
+        </div>
+        
+        <!-- 登录表单卡片 -->
+        <div class="login-form">
+            <form onsubmit="return login()">
+                <div class="form-group">
+                    <label for="username">用户名/手机号</label>
+                    <input type="text" id="username" placeholder="请输入手机号/学号">
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">密码</label>
+                    <input type="password" id="password" placeholder="请输入密码">
+                </div>
+                
+                <button type="submit" class="login-btn">登录</button>
+                
+                <div class="form-links">
+                    <a href="#" onclick="alert('注册功能开发中'); return false;">注册账号</a>
+                    <a href="#" onclick="alert('密码重置功能开发中'); return false;">忘记密码？</a>
+                </div>
+            </form>
+        </div>
+        
+        <!-- 第三方登录 -->
+        <div class="third-party-login">
+            <div class="divider">
+                <span>其他登录方式</span>
+            </div>
+            <div class="third-party-icons">
+                <div class="third-party-icon" onclick="alert('第三方登录开发中')">💬</div>
+                <div class="third-party-icon" onclick="alert('第三方登录开发中')">🐧</div>
+            </div>
+        </div>
+        
+        <!-- 页脚 -->
+        <div class="footer">
+            登录即表示您同意
+            <a href="#" onclick="alert('协议内容暂略'); return false;">《用户协议》</a>
+            和
+            <a href="#" onclick="alert('协议内容暂略'); return false;">《隐私政策》</a>
+        </div>
+    </div>
+    
+    <script>
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            if (!username || !password) {
+                alert('请输入用户名/密码');
+                return false;
+            }
+            
+            // 存储登录状态
+            localStorage.setItem('isLoggedIn', 'true');
+            
+            alert('登录成功');
+            window.location.href = 'index.html';
+            return false;
+        }
+        </script>
+</body>
+</html>

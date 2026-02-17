@@ -16,46 +16,56 @@
             <p style="color: #666; font-size: 14px; margin-top: 8px;">你的每一次回收都在守护地球。</p>
         </div>
         
-        <!-- 添加照片区域 -->
-        <div class="photo-upload">
-            <div style="font-size: 48px; margin-bottom: 12px;">📷</div>
-            <h3>添加照片</h3>
-            <p style="color: #666; font-size: 14px; margin: 8px 0 16px;">上传一张清晰的物品照片</p>
-            <button class="upload-btn" onclick="document.getElementById('fileInput').click()">选择图片</button>
-            <input type="file" id="fileInput" style="display: none;" onchange="console.log('选择的文件：' + this.files[0].name)">
+        <!-- 已登录状态内容 -->
+        <div id="publishForm" style="display: none;">
+            <!-- 添加照片区域 -->
+            <div class="photo-upload">
+                <div style="font-size: 48px; margin-bottom: 12px;">📷</div>
+                <h3>添加照片</h3>
+                <p style="color: #666; font-size: 14px; margin: 8px 0 16px;">上传一张清晰的物品照片</p>
+                <button class="upload-btn" onclick="document.getElementById('fileInput').click()">选择图片</button>
+                <input type="file" id="fileInput" style="display: none;" onchange="console.log('选择的文件：' + this.files[0].name)">
+            </div>
+            
+            <!-- 表单 -->
+            <div class="card">
+                <h3>物品名称</h3>
+                <input type="text" id="itemName" placeholder="例如：中古玻璃瓶">
+                
+                <h3>类别选择</h3>
+                <select id="itemCategory">
+                    <option value="">选择类别</option>
+                    <option value="digital">数码</option>
+                    <option value="clothing">衣物</option>
+                    <option value="books">书籍</option>
+                    <option value="other">其他</option>
+                </select>
+                
+                <h3>新旧程度</h3>
+                <div class="radio-group">
+                    <div class="radio-option">全新</div>
+                    <div class="radio-option active">九成新</div>
+                    <div class="radio-option">一般</div>
+                </div>
+                
+                <!-- 预估奖励 -->
+                <div style="background-color: #f0fdf4; border-radius: 8px; padding: 16px; margin: 16px 0;">
+                    <h3 style="margin-bottom: 8px;">预估奖励</h3>
+                    <div style="font-size: 18px; font-weight: 700; color: #2ecc71;">预计可得积分 15</div>
+                </div>
+                
+                <!-- 立即发布按钮 -->
+                <button class="btn" onclick="submitForm()">立即发布</button>
+                
+                <p style="text-align: center; font-size: 12px; color: #999; margin-top: 12px;">发布即代表您同意我们的<a href="#" onclick="alert('社区准则内容（暂略）'); return false;">社区准则</a></p>
+            </div>
         </div>
         
-        <!-- 表单 -->
-        <div class="card">
-            <h3>物品名称</h3>
-            <input type="text" id="itemName" placeholder="例如：中古玻璃瓶">
-            
-            <h3>类别选择</h3>
-            <select id="itemCategory">
-                <option value="">选择类别</option>
-                <option value="digital">数码</option>
-                <option value="clothing">衣物</option>
-                <option value="books">书籍</option>
-                <option value="other">其他</option>
-            </select>
-            
-            <h3>新旧程度</h3>
-            <div class="radio-group">
-                <div class="radio-option">全新</div>
-                <div class="radio-option active">九成新</div>
-                <div class="radio-option">一般</div>
-            </div>
-            
-            <!-- 预估奖励 -->
-            <div style="background-color: #f0fdf4; border-radius: 8px; padding: 16px; margin: 16px 0;">
-                <h3 style="margin-bottom: 8px;">预估奖励</h3>
-                <div style="font-size: 18px; font-weight: 700; color: #2ecc71;">预计可得积分 15</div>
-            </div>
-            
-            <!-- 立即发布按钮 -->
-            <button class="btn" onclick="submitForm()">立即发布</button>
-            
-            <p style="text-align: center; font-size: 12px; color: #999; margin-top: 12px;">发布即代表您同意我们的<a href="#" onclick="alert('社区准则内容（暂略）'); return false;">社区准则</a></p>
+        <!-- 未登录状态内容 -->
+        <div id="publishLoginPrompt" style="text-align: center; padding: 60px 20px; background-color: white; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+            <span style="font-size: 48px;">📦</span>
+            <p style="font-size: 18px; margin: 20px 0;">登录后即可发布绿色闲置</p>
+            <button style="background-color: #2ecc71; color: white; border: none; border-radius: 8px; padding: 14px 32px; font-size: 16px; font-weight: 500; cursor: pointer; min-height: 44px; min-width: 120px;" onclick="window.location.href='login.html'">去登录</button>
         </div>
         
         <script>
@@ -85,6 +95,24 @@
                 radioOptions.forEach(opt => opt.classList.remove('active'));
                 radioOptions[1].classList.add('active');
             }
+            
+            // 检查登录状态
+            function checkLoginStatus() {
+                const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+                const publishForm = document.getElementById('publishForm');
+                const publishLoginPrompt = document.getElementById('publishLoginPrompt');
+                
+                if (isLoggedIn) {
+                    publishForm.style.display = 'block';
+                    publishLoginPrompt.style.display = 'none';
+                } else {
+                    publishForm.style.display = 'none';
+                    publishLoginPrompt.style.display = 'block';
+                }
+            }
+            
+            // 页面加载时检查登录状态
+            window.onload = checkLoginStatus;
         </script>
     </div>
     

@@ -8,64 +8,110 @@
 </head>
 <body>
     <div class="container">
-        <!-- 顶部用户信息 -->
-        <div style="text-align: center; margin: 24px 0; cursor: pointer;" onclick="alert('个人资料设置')">
-            <div style="width: 80px; height: 80px; border-radius: 50%; background-color: #f0fdf4; display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 0 auto 16px;">👤</div>
-            <h2>林小绿</h2>
-            <div style="color: #2ecc71; font-size: 14px; margin: 4px 0;">减碳先锋</div>
-            <div style="color: #666; font-size: 12px;">自2023年1月加入</div>
+        <!-- 退出登录按钮 -->
+        <div style="text-align: right; padding: 10px;">
+            <button id="logoutBtn" style="display: none; background: none; border: 1px solid #2ecc71; color: #2ecc71; border-radius: 6px; padding: 6px 12px; font-size: 14px; cursor: pointer;" onclick="logout()">退出登录</button>
         </div>
         
-        <!-- 环形进度条 -->
-        <div class="progress-container">
-            <div class="progress-circle">
-                <div class="progress-inner">
-                    <div class="progress-percentage">75%</div>
-                    <div class="progress-label">目标完成</div>
+        <!-- 登录状态内容 -->
+        <div id="loggedInContent" style="display: none;">
+            <!-- 顶部用户信息 -->
+            <div style="text-align: center; margin: 24px 0; cursor: pointer;" onclick="alert('个人资料设置')">
+                <div style="width: 80px; height: 80px; border-radius: 50%; background-color: #f0fdf4; display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 0 auto 16px;">👤</div>
+                <h2>林小绿</h2>
+                <div style="color: #2ecc71; font-size: 14px; margin: 4px 0;">减碳先锋</div>
+                <div style="color: #666; font-size: 12px;">自2023年1月加入</div>
+            </div>
+            
+            <!-- 环形进度条 -->
+            <div class="progress-container">
+                <div class="progress-circle">
+                    <div class="progress-inner">
+                        <div class="progress-percentage">75%</div>
+                        <div class="progress-label">目标完成</div>
+                    </div>
+                </div>
+                <div style="text-align: center; font-size: 14px; color: #666;">
+                    <p>目标：50kg</p>
+                    <p>已减排：37.5kg</p>
+                    <p>剩余：12.5kg</p>
                 </div>
             </div>
-            <div style="text-align: center; font-size: 14px; color: #666;">
-                <p>目标：50kg</p>
-                <p>已减排：37.5kg</p>
-                <p>剩余：12.5kg</p>
+            
+            <!-- 数据卡片 -->
+            <div class="stats-container">
+                <div class="stat-card" onclick="alert('数据详情开发中')">
+                    <div class="stat-value">124</div>
+                    <div class="stat-label">累计捐赠物品</div>
+                    <div class="stat-change positive">+12%</div>
+                </div>
+                <div class="stat-card" onclick="alert('数据详情开发中')">
+                    <div class="stat-value">¥1,240</div>
+                    <div class="stat-label">累计节省开支</div>
+                    <div class="stat-change positive">+5%</div>
+                </div>
+                <div class="stat-card" onclick="alert('数据详情开发中')">
+                    <div class="stat-value">2,450</div>
+                    <div class="stat-label">当前绿分</div>
+                    <div class="stat-change negative">-2%</div>
+                </div>
+            </div>
+            
+            <!-- 菜单项 -->
+            <div class="card">
+                <div class="menu-item" style="padding: 16px; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="alert('跳转至回收记录列表（功能开发中）')">
+                    <span>回收记录</span>
+                    <span>→</span>
+                </div>
+                <div class="menu-item" style="padding: 16px; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="alert('展示环保证书（开发中）')">
+                    <span>我的环保证书</span>
+                    <span>→</span>
+                </div>
+                <div class="menu-item" style="padding: 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="alert('帮助中心页面（开发中）')">
+                    <span>帮助中心</span>
+                    <span>→</span>
+                </div>
             </div>
         </div>
         
-        <!-- 数据卡片 -->
-        <div class="stats-container">
-            <div class="stat-card" onclick="alert('数据详情开发中')">
-                <div class="stat-value">124</div>
-                <div class="stat-label">累计捐赠物品</div>
-                <div class="stat-change positive">+12%</div>
-            </div>
-            <div class="stat-card" onclick="alert('数据详情开发中')">
-                <div class="stat-value">¥1,240</div>
-                <div class="stat-label">累计节省开支</div>
-                <div class="stat-change positive">+5%</div>
-            </div>
-            <div class="stat-card" onclick="alert('数据详情开发中')">
-                <div class="stat-value">2,450</div>
-                <div class="stat-label">当前绿分</div>
-                <div class="stat-change negative">-2%</div>
-            </div>
-        </div>
-        
-        <!-- 菜单项 -->
-        <div class="card">
-            <div class="menu-item" style="padding: 16px; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="alert('跳转至回收记录列表（功能开发中）')">
-                <span>回收记录</span>
-                <span>→</span>
-            </div>
-            <div class="menu-item" style="padding: 16px; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="alert('展示环保证书（开发中）')">
-                <span>我的环保证书</span>
-                <span>→</span>
-            </div>
-            <div class="menu-item" style="padding: 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="alert('帮助中心页面（开发中）')">
-                <span>帮助中心</span>
-                <span>→</span>
-            </div>
+        <!-- 未登录状态内容 -->
+        <div id="notLoggedInContent" style="text-align: center; padding: 60px 20px;">
+            <div style="font-size: 64px; margin-bottom: 24px;">🔐</div>
+            <h2 style="margin-bottom: 16px;">您还未登录</h2>
+            <p style="color: #666; margin-bottom: 32px;">登录后查看您的个人减碳数据</p>
+            <button style="background-color: #2ecc71; color: white; border: none; border-radius: 8px; padding: 14px 32px; font-size: 16px; font-weight: 500; cursor: pointer; min-height: 44px; min-width: 120px;" onclick="window.location.href='login.html'">去登录</button>
         </div>
     </div>
+    
+    <script>
+        // 检查登录状态
+        function checkLoginStatus() {
+            const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+            const loggedInContent = document.getElementById('loggedInContent');
+            const notLoggedInContent = document.getElementById('notLoggedInContent');
+            const logoutBtn = document.getElementById('logoutBtn');
+            
+            if (isLoggedIn) {
+                loggedInContent.style.display = 'block';
+                notLoggedInContent.style.display = 'none';
+                logoutBtn.style.display = 'inline-block';
+            } else {
+                loggedInContent.style.display = 'none';
+                notLoggedInContent.style.display = 'block';
+                logoutBtn.style.display = 'none';
+            }
+        }
+        
+        // 退出登录
+        function logout() {
+            localStorage.removeItem('isLoggedIn');
+            alert('已退出登录');
+            location.reload();
+        }
+        
+        // 页面加载时检查登录状态
+        window.onload = checkLoginStatus;
+    </script>
     
     <!-- 导航栏 -->
     <nav>
