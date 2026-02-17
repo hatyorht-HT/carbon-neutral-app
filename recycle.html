@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>发布绿色闲置</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>发布绿色闲置</h1>
+        
+        <!-- 页面副标题 -->
+        <div class="card" style="background-color: #f0fdf4; margin-bottom: 24px;">
+            <h3>上传你的闲置，助力碳减排</h3>
+            <p style="color: #666; font-size: 14px; margin-top: 8px;">你的每一次回收都在守护地球。</p>
+        </div>
+        
+        <!-- 添加照片区域 -->
+        <div class="photo-upload">
+            <div style="font-size: 48px; margin-bottom: 12px;">📷</div>
+            <h3>添加照片</h3>
+            <p style="color: #666; font-size: 14px; margin: 8px 0 16px;">上传一张清晰的物品照片</p>
+            <button class="upload-btn" onclick="document.getElementById('fileInput').click()">选择图片</button>
+            <input type="file" id="fileInput" style="display: none;" onchange="console.log('选择的文件：' + this.files[0].name)">
+        </div>
+        
+        <!-- 表单 -->
+        <div class="card">
+            <h3>物品名称</h3>
+            <input type="text" id="itemName" placeholder="例如：中古玻璃瓶">
+            
+            <h3>类别选择</h3>
+            <select id="itemCategory">
+                <option value="">选择类别</option>
+                <option value="digital">数码</option>
+                <option value="clothing">衣物</option>
+                <option value="books">书籍</option>
+                <option value="other">其他</option>
+            </select>
+            
+            <h3>新旧程度</h3>
+            <div class="radio-group">
+                <div class="radio-option">全新</div>
+                <div class="radio-option active">九成新</div>
+                <div class="radio-option">一般</div>
+            </div>
+            
+            <!-- 预估奖励 -->
+            <div style="background-color: #f0fdf4; border-radius: 8px; padding: 16px; margin: 16px 0;">
+                <h3 style="margin-bottom: 8px;">预估奖励</h3>
+                <div style="font-size: 18px; font-weight: 700; color: #2ecc71;">预计可得积分 15</div>
+            </div>
+            
+            <!-- 立即发布按钮 -->
+            <button class="btn" onclick="submitForm()">立即发布</button>
+            
+            <p style="text-align: center; font-size: 12px; color: #999; margin-top: 12px;">发布即代表您同意我们的<a href="#" onclick="alert('社区准则内容（暂略）'); return false;">社区准则</a></p>
+        </div>
+        
+        <script>
+            function submitForm() {
+                const itemName = document.getElementById('itemName').value;
+                const itemCategory = document.getElementById('itemCategory').value;
+                
+                if (!itemName) {
+                    alert('请输入物品名称');
+                    return;
+                }
+                
+                if (!itemCategory) {
+                    alert('请选择类别');
+                    return;
+                }
+                
+                alert('发布成功！您的闲置已提交审核');
+                
+                // 清空表单
+                document.getElementById('fileInput').value = '';
+                document.getElementById('itemName').value = '';
+                document.getElementById('itemCategory').value = '';
+                
+                // 重置新旧程度为九成新
+                const radioOptions = document.querySelectorAll('.radio-option');
+                radioOptions.forEach(opt => opt.classList.remove('active'));
+                radioOptions[1].classList.add('active');
+            }
+        </script>
+    </div>
+    
+    <!-- 导航栏 -->
+    <nav>
+        <a href="index.html" class="nav-item" data-page="index.html">
+            <span class="nav-icon">🏠</span>
+            <span>首页</span>
+        </a>
+        <a href="shop.html" class="nav-item" data-page="shop.html">
+            <span class="nav-icon">🛒</span>
+            <span>商城</span>
+        </a>
+        <a href="recycle.html" class="nav-item active" data-page="recycle.html">
+            <span class="nav-icon">♻️</span>
+            <span>回收</span>
+        </a>
+        <a href="rank.html" class="nav-item" data-page="rank.html">
+            <span class="nav-icon">🏆</span>
+            <span>排行</span>
+        </a>
+        <a href="profile.html" class="nav-item" data-page="profile.html">
+            <span class="nav-icon">👤</span>
+            <span>我的</span>
+        </a>
+    </nav>
+    
+    <script src="script.js"></script>
+</body>
+</html>

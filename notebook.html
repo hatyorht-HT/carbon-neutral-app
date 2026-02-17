@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人错题本 - 编程练习平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1e293b',
+                        secondary: '#334155',
+                        accent: '#f59e0b',
+                        success: '#10b981',
+                        warning: '#f59e0b',
+                        danger: '#ef4444',
+                        dark: '#0f172a',
+                        'dark-light': '#1e293b',
+                        'dark-lighter': '#334155'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .scrollbar-hide::-webkit-scrollbar {
+                display: none;
+            }
+            .scrollbar-hide {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+            .gradient-bg {
+                background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            }
+            .card-hover {
+                transition: all 0.3s ease;
+            }
+            .card-hover:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            }
+            .tag {
+                font-size: 0.75rem;
+                padding: 0.125rem 0.5rem;
+                border-radius: 9999px;
+                margin-right: 0.25rem;
+                margin-bottom: 0.25rem;
+            }
+            .tag-bg {
+                background: rgba(156, 163, 175, 0.1);
+                color: #9ca3af;
+            }
+            .error-type {
+                font-size: 0.75rem;
+                padding: 0.125rem 0.5rem;
+                border-radius: 9999px;
+                background: rgba(239, 68, 68, 0.1);
+                color: #ef4444;
+            }
+        }
+    </style>
+</head>
+<body class="bg-dark text-gray-200 min-h-screen">
+    <!-- 顶部导航栏 -->
+    <header class="bg-dark-light border-b border-gray-700 sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-6">
+                <div class="flex items-center space-x-2">
+                    <a href="index.html" class="flex items-center space-x-2">
+                        <i class="fa fa-code text-accent text-2xl"></i>
+                        <span class="text-xl font-bold text-white">编程练习平台</span>
+                    </a>
+                </div>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="relative">
+                    <input type="text" placeholder="搜索题目或知识点..." class="bg-secondary rounded-md px-4 py-1 pl-10 text-sm focus:outline-none focus:ring-2 focus:ring-accent">
+                    <i class="fa fa-search absolute left-3 top-2 text-gray-400"></i>
+                </div>
+                <button class="text-gray-300 hover:text-white transition-colors">
+                    <i class="fa fa-bell"></i>
+                </button>
+                <button class="text-gray-300 hover:text-white transition-colors">
+                    <i class="fa fa-cog"></i>
+                </button>
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 rounded-full bg-accent flex items-center justify-center">
+                        <span class="font-bold text-white">CM</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主内容区域 -->
+    <main class="container mx-auto px-4 py-6 flex">
+        <!-- 侧边栏 -->
+        <aside class="w-64 flex-shrink-0 mr-6">
+            <div class="bg-dark-light rounded-lg p-4 mb-6">
+                <h2 class="text-lg font-semibold mb-4 text-white">学习中心</h2>
+                <ul class="space-y-2">
+                    <li>
+                        <a href="index.html" class="flex items-center space-x-2 px-3 py-2 rounded-md hover:bg-secondary transition-colors">
+                            <i class="fa fa-home"></i>
+                            <span>题库首页</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="notebook.html" class="flex items-center space-x-2 px-3 py-2 rounded-md bg-secondary text-white">
+                            <i class="fa fa-book"></i>
+                            <span>个人错题本</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="flex items-center space-x-2 px-3 py-2 rounded-md hover:bg-secondary transition-colors">
+                            <i class="fa fa-code-fork"></i>
+                            <span>错误分类</span>
+                        </a>
+                        <ul class="pl-6 mt-1 space-y-1">
+                            <li>
+                                <a href="#" class="flex items-center space-x-2 px-3 py-1 rounded-md hover:bg-secondary transition-colors text-sm">
+                                    <i class="fa fa-angle-right text-xs"></i>
+                                    <span>语法错误</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" class="flex items-center space-x-2 px-3 py-1 rounded-md hover:bg-secondary transition-colors text-sm">
+                                    <i class="fa fa-angle-right text-xs"></i>
+                                    <span>逻辑错误</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" class="flex items-center space-x-2 px-3 py-1 rounded-md hover:bg-secondary transition-colors text-sm">
+                                    <i class="fa fa-angle-right text-xs"></i>
+                                    <span>性能优化 (TLE)</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="profile.html" class="flex items-center space-x-2 px-3 py-2 rounded-md hover:bg-secondary transition-colors">
+                            <i class="fa fa-user"></i>
+                            <span>个人中心</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="flex items-center space-x-2 px-3 py-2 rounded-md hover:bg-secondary transition-colors">
+                            <i class="fa fa-star"></i>
+                            <span>专项攻克</span>
+                        </a>
+                        <ul class="pl-6 mt-1 space-y-1">
+                            <li>
+                                <a href="#" class="flex items-center space-x-2 px-3 py-1 rounded-md hover:bg-secondary transition-colors text-sm">
+                                    <i class="fa fa-angle-right text-xs"></i>
+                                    <span>C语言指针专项</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" class="flex items-center space-x-2 px-3 py-1 rounded-md hover:bg-secondary transition-colors text-sm">
+                                    <i class="fa fa-angle-right text-xs"></i>
+                                    <span>Python内存管理</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" class="flex items-center space-x-2 px-3 py-1 rounded-md hover:bg-secondary transition-colors text-sm">
+                                    <i class="fa fa-angle-right text-xs"></i>
+                                    <span>常见编程陷阱</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="bg-dark-light rounded-lg p-4">
+                <h2 class="text-lg font-semibold mb-4 text-white">开发者账号</h2>
+                <div class="flex items-center space-x-3 mb-4">
+                    <div class="w-10 h-10 rounded-full bg-accent flex items-center justify-center">
+                        <span class="font-bold text-white">CM</span>
+                    </div>
+                    <div>
+                        <p class="font-medium">CodeMaster_99</p>
+                        <p class="text-xs text-gray-400">Lv.12 实习评级</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 主内容 -->
+        <div class="flex-1">
+            <div class="mb-6">
+                <h1 class="text-2xl font-bold mb-2 text-white">个人错题本</h1>
+                <p class="text-gray-400 mb-6">专注提升，攻克难点</p>
+            </div>
+
+            <!-- 智能重练推荐 -->
+            <div class="bg-dark-light rounded-lg p-6 mb-6">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+                    <div>
+                        <h2 class="text-xl font-semibold mb-2 text-white">智能重练推荐</h2>
+                        <p class="text-gray-400">根据遗忘曲线，建立即时重练或3天后重练的5道题组</p>
+                    </div>
+                    <button class="mt-4 md:mt-0 px-4 py-2 bg-accent rounded-md font-medium hover:bg-amber-600 transition-colors">开始重练</button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-secondary rounded-lg p-4">
+                        <div class="flex justify-between items-center">
+                            <span class="font-medium">总计错题</span>
+                            <span class="text-2xl font-bold">42</span>
+                        </div>
+                    </div>
+                    <div class="bg-secondary rounded-lg p-4">
+                        <div class="flex justify-between items-center">
+                            <span class="font-medium">待复习</span>
+                            <span class="text-2xl font-bold text-warning">12</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 筛选条件 -->
+            <div class="flex flex-wrap items-center gap-4 mb-6">
+                <select class="bg-secondary rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-accent">
+                    <option>错误类型</option>
+                    <option>语法错误</option>
+                    <option>逻辑错误</option>
+                    <option>性能优化 (TLE)</option>
+                </select>
+                <select class="bg-secondary rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-accent">
+                    <option>编程语言</option>
+                    <option>Python</option>
+                    <option>C语言</option>
+                </select>
+                <select class="bg-secondary rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-accent">
+                    <option>难度等级</option>
+                    <option>所有难度</option>
+                    <option>简单</option>
+                    <option>中等</option>
+                    <option>困难</option>
+                </select>
+                <div class="ml-auto flex items-center space-x-2">
+                    <span class="text-sm text-gray-400">排序方式:</span>
+                    <select class="bg-secondary rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-accent text-sm">
+                        <option>最近添加</option>
+                        <option>错误次数</option>
+                        <option>难度</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 错题列表 -->
+            <div class="bg-dark-light rounded-lg p-6 mb-6">
+                <!-- 错题1 -->
+                <div class="bg-secondary rounded-lg p-4 mb-4 card-hover">
+                    <div class="flex justify-between items-start mb-3">
+                        <div class="flex items-center space-x-2">
+                            <span class="error-type">RUNTIME ERROR</span>
+                            <span class="font-medium">1. 两数之和 (Two Sum)</span>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button class="text-gray-400 hover:text-white transition-colors">
+                                <i class="fa fa-ellipsis-v"></i>
+                            </button>
+                            <button class="text-gray-400 hover:text-white transition-colors">
+                                <i class="fa fa-bookmark-o"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap items-center space-x-4 mb-3 text-sm text-gray-400">
+                        <span><i class="fa fa-code"></i> Python 3</span>
+                        <span><i class="fa fa-signal"></i> 简单</span>
+                        <span><i class="fa fa-calendar"></i> 3天前添加</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <h3 class="text-sm font-medium mb-2 text-white">错误代码</h3>
+                            <div class="bg-dark rounded-md p-3 font-mono text-sm overflow-auto max-h-40">
+                                <pre class="text-gray-300">for i in range(len(nums)):
+    # IndexError: list index out of range
+    if nums[i] + nums[i+1] == target:
+        return [i, i+1]</pre>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-medium mb-2 text-white">重点笔记</h3>
+                            <div class="bg-dark rounded-md p-3 text-sm">
+                                <p class="text-gray-300">需要注意数组下标越界问题，循环边界应该是 len(nums)-1。此外，暴力枚举效率较低，下次尝试使用哈希表优化。</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex justify-end space-x-2">
+                        <button class="px-3 py-1 bg-secondary border border-gray-600 text-sm rounded-md hover:bg-dark-lighter transition-colors">查看题解</button>
+                        <button class="px-3 py-1 bg-accent text-sm rounded-md hover:bg-amber-600 transition-colors">重新挑战</button>
+                    </div>
+                </div>
+
+                <!-- 错题2 -->
+                <div class="bg-secondary rounded-lg p-4 mb-4 card-hover">
+                    <div class="flex justify-between items-start mb-3">
+                        <div class="flex items-center space-x-2">
+                            <span class="error-type">TIME LIMIT EXCEEDED</span>
+                            <span class="font-medium">15. 三数之和 (3Sum)</span>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button class="text-gray-400 hover:text-white transition-colors">
+                                <i class="fa fa-ellipsis-v"></i>
+                            </button>
+                            <button class="text-gray-400 hover:text-white transition-colors">
+                                <i class="fa fa-bookmark-o"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap items-center space-x-4 mb-3 text-sm text-gray-400">
+                        <span><i class="fa fa-code"></i> C++</span>
+                        <span><i class="fa fa-signal"></i> 中等</span>
+                        <span><i class="fa fa-calendar"></i> 1周前添加</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <h3 class="text-sm font-medium mb-2 text-white">错误代码</h3>
+                            <div class="bg-dark rounded-md p-3 font-mono text-sm overflow-auto max-h-40">
+                                <pre class="text-gray-300">for(int i=0; i<n; i++)
+    for(int j=i+1; j<n; j++)
+        for(int k=j+1; k<n; k++)
+            // O(n^3) complexity lead to TLE</pre>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-medium mb-2 text-white">重点笔记</h3>
+                            <div class="bg-dark rounded-md p-3 text-sm">
+                                <p class="text-gray-300">三重循环直接超时了。应该先对数组进行排序，然后使用"固定一个数，双指针遍历"的方法，将时间复杂度降到 O(n^2)。</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex justify-end space-x-2">
+                        <button class="px-3 py-1 bg-secondary border border-gray-600 text-sm rounded-md hover:bg-dark-lighter transition-colors">查看题解</button>
+                        <button class="px-3 py-1 bg-accent text-sm rounded-md hover:bg-amber-600 transition-colors">重新挑战</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右侧推荐 -->
+        <aside class="w-72 flex-shrink-0 ml-6">
+            <!-- 基于错误模式推荐 -->
+            <div class="bg-dark-light rounded-lg p-4 mb-6">
+                <h2 class="text-lg font-semibold mb-4 text-white">基于你的错误模式推荐</h2>
+                <div class="space-y-4">
+                    <div class="bg-secondary rounded-lg p-4 card-hover">
+                        <div class="flex justify-center mb-3">
+                            <button class="w-12 h-12 rounded-full bg-accent flex items-center justify-center">
+                                <i class="fa fa-play text-white"></i>
+                            </button>
+                        </div>
+                        <h3 class="font-medium mb-2 text-center">如何彻底避免数组越界？</h3>
+                        <p class="text-xs text-gray-400 text-center">针对 Python+C++ 常见边界条件总结</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 算法实战深度讲解 -->
+            <div class="bg-dark-light rounded-lg p-4 mb-6">
+                <h2 class="text-lg font-semibold mb-4 text-white">算法实战深度讲解</h2>
+                <div class="bg-secondary rounded-lg p-4 card-hover mb-4">
+                    <div class="flex items-center space-x-2 mb-2">
+                        <i class="fa fa-book text-accent"></i>
+                        <span class="font-medium">从 O(n^2) 到 O(logn) 的优化技巧</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 在线导师答疑 -->
+            <div class="bg-dark-light rounded-lg p-4 mb-6">
+                <h2 class="text-lg font-semibold mb-4 text-white">在线导师答疑</h2>
+                <div class="bg-secondary rounded-lg p-4 card-hover">
+                    <p class="mb-3">遇到无法理解的错误？即刻与助教进行 1对1 交流</p>
+                    <button class="w-full py-2 bg-accent rounded-md font-medium hover:bg-amber-600 transition-colors">立即咨询</button>
+                </div>
+            </div>
+
+            <!-- 学习进度 -->
+            <div class="bg-dark-light rounded-lg p-4">
+                <h2 class="text-lg font-semibold mb-4 text-white">学习进度</h2>
+                <div class="bg-secondary rounded-lg p-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="font-medium">本月错题清空</span>
+                        <button class="text-accent hover:text-amber-400 transition-colors">
+                            <i class="fa fa-plus"></i>
+                        </button>
+                    </div>
+                    <div class="progress-bar" style="height: 8px; background: #334155; border-radius: 4px; overflow: hidden;">
+                        <div class="h-full bg-accent rounded-md" style="width: 60%;"></div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-dark-light border-t border-gray-700 py-6">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <p class="text-sm text-gray-400">© 2024 编程练习平台 | 精选试题，每天进步一点点</p>
+                </div>
+                <div class="flex space-x-4">
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors">关于我们</a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors">使用条款</a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors">隐私政策</a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors">联系我们</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 模拟数据加载和交互
+        document.addEventListener('DOMContentLoaded', function() {
+            // 侧边栏导航切换
+            const sidebarLinks = document.querySelectorAll('aside a');
+            sidebarLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    // 移除所有链接的活跃状态
+                    sidebarLinks.forEach(l => l.classList.remove('bg-secondary', 'text-white'));
+                    // 添加当前链接的活跃状态
+                    this.classList.add('bg-secondary', 'text-white');
+                });
+            });
+
+            // 按钮点击事件
+            const buttons = document.querySelectorAll('button');
+            buttons.forEach(button => {
+                button.addEventListener('click', function() {
+                    if (this.textContent.includes('重新挑战') || this.textContent.includes('开始重练')) {
+                        window.location.href = 'problem.html';
+                    }
+                    console.log('点击了按钮:', this.textContent);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

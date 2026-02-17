@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>绿商城</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 搜索框 -->
+        <input type="text" placeholder="搜索资源" onkeypress="if(event.key === 'Enter') alert('搜索功能开发中，您输入了：' + this.value)">
+        
+        <!-- 我的绿分余额 -->
+        <div class="card">
+            <h2>我的绿分余额</h2>
+            <div style="font-size: 24px; font-weight: 700; margin: 12px 0;">1,250 积分</div>
+            <button class="get-more" style="background: none; border: none; color: #2ecc71; font-size: 14px; cursor: pointer;" onclick="alert('获取更多积分功能开发中')">获取更多 →</button>
+        </div>
+        
+        <!-- 热门兑换 -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin: 16px 0;">
+            <h2>热门兑换</h2>
+            <span style="font-size: 14px; color: #666;">查看全部</span>
+        </div>
+        <div class="product-grid">
+            <div class="product-card" onclick="alert('商品详情开发中，积分：15，已兑换1235人')">
+                <div class="product-image">🛍️</div>
+                <div class="product-info">
+                    <div class="product-name">再生帆布手提袋</div>
+                    <div class="product-points">15积分</div>
+                    <div class="product-count">1,235人已兑换</div>
+                </div>
+            </div>
+            <div class="product-card" onclick="alert('商品详情开发中，积分：10，已兑换859人')">
+                <div class="product-image">🍽️</div>
+                <div class="product-info">
+                    <div class="product-name">竹制餐具套装</div>
+                    <div class="product-points">10积分</div>
+                    <div class="product-count">859人已兑换</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 精品推荐 -->
+        <h2>精品推荐</h2>
+        <div class="product-grid">
+            <div class="product-card" onclick="alert('商品详情开发中，积分：50，已兑换214人')">
+                <div class="product-image">🔋</div>
+                <div class="product-info">
+                    <div class="product-name">太阳能充电宝</div>
+                    <div class="product-points">50积分</div>
+                    <div class="product-count">214人已兑换</div>
+                </div>
+            </div>
+            <div class="product-card" onclick="alert('商品详情开发中，积分：8，已兑换506人')">
+                <div class="product-image">📒</div>
+                <div class="product-info">
+                    <div class="product-name">再生纸极简笔记本</div>
+                    <div class="product-points">8积分</div>
+                    <div class="product-count">506人已兑换</div>
+                </div>
+            </div>
+            <div class="product-card" onclick="alert('商品详情开发中，积分：35，已兑换920人')">
+                <div class="product-image">☕</div>
+                <div class="product-info">
+                    <div class="product-name">不锈钢真空保温杯</div>
+                    <div class="product-points">35积分</div>
+                    <div class="product-count">920人已兑换</div>
+                </div>
+            </div>
+            <div class="product-card" onclick="alert('商品详情开发中，积分：12，已兑换310人')">
+                <div class="product-image">🌱</div>
+                <div class="product-info">
+                    <div class="product-name">可种植种子贺卡</div>
+                    <div class="product-points">12积分</div>
+                    <div class="product-count">310人已兑换</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 导航栏 -->
+    <nav>
+        <a href="index.html" class="nav-item" data-page="index.html">
+            <span class="nav-icon">🏠</span>
+            <span>首页</span>
+        </a>
+        <a href="shop.html" class="nav-item active" data-page="shop.html">
+            <span class="nav-icon">🛒</span>
+            <span>商城</span>
+        </a>
+        <a href="recycle.html" class="nav-item" data-page="recycle.html">
+            <span class="nav-icon">♻️</span>
+            <span>回收</span>
+        </a>
+        <a href="rank.html" class="nav-item" data-page="rank.html">
+            <span class="nav-icon">🏆</span>
+            <span>排行</span>
+        </a>
+        <a href="profile.html" class="nav-item" data-page="profile.html">
+            <span class="nav-icon">👤</span>
+            <span>我的</span>
+        </a>
+    </nav>
+    
+    <script src="script.js"></script>
+</body>
+</html>

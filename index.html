@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>碳账户 - 首页</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>欢迎回来，林小绿 👋</h1>
+        
+        <!-- 环形进度条 -->
+        <div class="progress-container">
+            <div class="progress-circle">
+                <div class="progress-inner">
+                    <div class="progress-percentage">75%</div>
+                    <div class="progress-label">目标完成</div>
+                </div>
+            </div>
+            <div style="text-align: center; font-size: 14px; color: #666;">
+                <p>目标：50kg</p>
+                <p>已减排：37.5kg</p>
+                <p>剩余：12.5kg</p>
+            </div>
+        </div>
+        
+        <!-- 数据卡片 -->
+        <div class="stats-container">
+            <div class="stat-card" onclick="alert('数据详情开发中')">
+                <div class="stat-value">124</div>
+                <div class="stat-label">累计捐赠物品</div>
+                <div class="stat-change positive">+12%</div>
+            </div>
+            <div class="stat-card" onclick="alert('数据详情开发中')">
+                <div class="stat-value">¥1,240</div>
+                <div class="stat-label">累计节省开支</div>
+                <div class="stat-change positive">+5%</div>
+            </div>
+            <div class="stat-card" onclick="alert('数据详情开发中')">
+                <div class="stat-value">2,450</div>
+                <div class="stat-label">当前绿分</div>
+                <div class="stat-change negative">-2%</div>
+            </div>
+        </div>
+        
+        <!-- 热门兑换 -->
+        <h2>热门兑换</h2>
+        <div class="product-grid">
+            <div class="product-card" onclick="alert('前往商品详情（积分：15）')">
+                <div class="product-image">🛍️</div>
+                <div class="product-info">
+                    <div class="product-name">再生帆布手提袋</div>
+                    <div class="product-points">15积分</div>
+                    <div class="product-count">1,235人已兑换</div>
+                </div>
+            </div>
+            <div class="product-card" onclick="alert('前往商品详情（积分：10）')">
+                <div class="product-image">🍽️</div>
+                <div class="product-info">
+                    <div class="product-name">竹制餐具套装</div>
+                    <div class="product-points">10积分</div>
+                    <div class="product-count">859人已兑换</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 导航栏 -->
+    <nav>
+        <a href="index.html" class="nav-item active" data-page="index.html">
+            <span class="nav-icon">🏠</span>
+            <span>首页</span>
+        </a>
+        <a href="shop.html" class="nav-item" data-page="shop.html">
+            <span class="nav-icon">🛒</span>
+            <span>商城</span>
+        </a>
+        <a href="recycle.html" class="nav-item" data-page="recycle.html">
+            <span class="nav-icon">♻️</span>
+            <span>回收</span>
+        </a>
+        <a href="rank.html" class="nav-item" data-page="rank.html">
+            <span class="nav-icon">🏆</span>
+            <span>排行</span>
+        </a>
+        <a href="profile.html" class="nav-item" data-page="profile.html">
+            <span class="nav-icon">👤</span>
+            <span>我的</span>
+        </a>
+    </nav>
+    
+    <script src="script.js"></script>
+</body>
+</html>
