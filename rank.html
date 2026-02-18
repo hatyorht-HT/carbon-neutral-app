@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>减碳排行榜</title>
-    <link rel="stylesheet" href="style.css">
+    <meta name="description" content="减碳排行榜，查看个人和全校的减碳排名，为地球贡献力量。">
+    <title>减碳排行榜 - 碳中和校园</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <div class="container">
@@ -373,30 +375,46 @@
         </script>
     </div>
     
-    <!-- 导航栏 -->
-    <nav>
-        <a href="index.html" class="nav-item" data-page="index.html">
-            <span class="nav-icon">🏠</span>
-            <span>首页</span>
-        </a>
-        <a href="shop.html" class="nav-item" data-page="shop.html">
-            <span class="nav-icon">🛒</span>
-            <span>商城</span>
-        </a>
-        <a href="recycle.html" class="nav-item" data-page="recycle.html">
-            <span class="nav-icon">♻️</span>
-            <span>回收</span>
-        </a>
-        <a href="rank.html" class="nav-item active" data-page="rank.html">
-            <span class="nav-icon">🏆</span>
-            <span>排行</span>
-        </a>
-        <a href="profile.html" class="nav-item" data-page="profile.html">
-            <span class="nav-icon">👤</span>
-            <span>我的</span>
-        </a>
-    </nav>
-    
-    <script src="script.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/script.js"></script>
+    <script>
+        // 检查登录状态
+        function checkLoginStatus() {
+            const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+            const rankContent = document.getElementById('rankContent');
+            const rankLoginPrompt = document.getElementById('rankLoginPrompt');
+            
+            if (isLoggedIn) {
+                rankContent.style.display = 'block';
+                rankLoginPrompt.style.display = 'none';
+                // 检查是否有排名数据
+                checkRankData();
+            } else {
+                rankContent.style.display = 'none';
+                rankLoginPrompt.style.display = 'block';
+            }
+        }
+        
+        // 检查排名数据
+        function checkRankData() {
+            // 模拟空数据情况（可根据实际情况修改）
+            const hasData = true; // 设置为false可测试空状态
+            
+            if (!hasData) {
+                const rankList = document.getElementById('rankList');
+                rankList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📊</div>
+                        <div class="empty-state-text">暂无排名</div>
+                        <div class="empty-state-subtext">快去减碳吧！</div>
+                    </div>
+                `;
+            }
+        }
+        
+        // 页面加载时检查登录状态
+        window.onload = checkLoginStatus;
+    </script>
+    <script src="js/footer.js"></script>
 </body>
 </html>

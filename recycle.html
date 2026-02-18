@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>发布绿色闲置</title>
-    <link rel="stylesheet" href="style.css">
+    <meta name="description" content="发布绿色闲置，为地球减碳，获得绿分奖励。">
+    <title>发布闲置 - 碳中和校园</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <div class="container">
@@ -105,9 +107,32 @@
                 if (isLoggedIn) {
                     publishForm.style.display = 'block';
                     publishLoginPrompt.style.display = 'none';
+                    // 检查是否有发布历史
+                    checkPublishHistory();
                 } else {
                     publishForm.style.display = 'none';
                     publishLoginPrompt.style.display = 'block';
+                }
+            }
+            
+            // 检查发布历史
+            function checkPublishHistory() {
+                // 模拟空数据情况（可根据实际情况修改）
+                const hasHistory = false; // 设置为false可测试空状态
+                
+                if (!hasHistory) {
+                    const container = document.querySelector('.container');
+                    const emptyState = document.createElement('div');
+                    emptyState.className = 'empty-state';
+                    emptyState.style.marginBottom = '24px';
+                    emptyState.innerHTML = `
+                        <div class="empty-state-icon">📦</div>
+                        <div class="empty-state-text">你还没有发布过闲置</div>
+                        <div class="empty-state-subtext">快去发布吧！</div>
+                    `;
+                    // 插入到表单上方
+                    const publishForm = document.getElementById('publishForm');
+                    container.insertBefore(emptyState, publishForm);
                 }
             }
             
@@ -116,30 +141,162 @@
         </script>
     </div>
     
-    <!-- 导航栏 -->
-    <nav>
-        <a href="index.html" class="nav-item" data-page="index.html">
-            <span class="nav-icon">🏠</span>
-            <span>首页</span>
-        </a>
-        <a href="shop.html" class="nav-item" data-page="shop.html">
-            <span class="nav-icon">🛒</span>
-            <span>商城</span>
-        </a>
-        <a href="recycle.html" class="nav-item active" data-page="recycle.html">
-            <span class="nav-icon">♻️</span>
-            <span>回收</span>
-        </a>
-        <a href="rank.html" class="nav-item" data-page="rank.html">
-            <span class="nav-icon">🏆</span>
-            <span>排行</span>
-        </a>
-        <a href="profile.html" class="nav-item" data-page="profile.html">
-            <span class="nav-icon">👤</span>
-            <span>我的</span>
-        </a>
-    </nav>
-    
-    <script src="script.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/script.js"></script>
+    <script>
+        // 表单实时验证
+        document.addEventListener('DOMContentLoaded', function() {
+            const itemNameInput = document.getElementById('itemName');
+            const itemCategorySelect = document.getElementById('itemCategory');
+            
+            // 物品名称验证
+            itemNameInput.addEventListener('blur', function() {
+                const errorId = 'itemNameError';
+                if (!this.value.trim()) {
+                    showError(this, errorId, '物品名称不能为空');
+                } else {
+                    hideError(errorId);
+                }
+            });
+            
+            // 类别选择验证
+            itemCategorySelect.addEventListener('change', function() {
+                const errorId = 'itemCategoryError';
+                if (!this.value) {
+                    showError(this, errorId, '请选择类别');
+                } else {
+                    hideError(errorId);
+                }
+            });
+        });
+        
+        // 显示错误提示
+        function showError(element, errorId, message) {
+            hideError(errorId);
+            const errorElement = document.createElement('div');
+            errorElement.id = errorId;
+            errorElement.className = 'error-message';
+            errorElement.textContent = message;
+            element.parentNode.insertBefore(errorElement, element.nextSibling);
+        }
+        
+        // 隐藏错误提示
+        function hideError(errorId) {
+            const errorElement = document.getElementById(errorId);
+            if (errorElement) {
+                errorElement.remove();
+            }
+        }
+        
+        // 提交表单
+        function submitForm() {
+            const itemName = document.getElementById('itemName').value;
+            const itemCategory = document.getElementById('itemCategory').value;
+            const submitBtn = document.querySelector('.btn');
+            
+            // 验证
+            let isValid = true;
+            
+            if (!itemName.trim()) {
+                showError(document.getElementById('itemName'), 'itemNameError', '物品名称不能为空');
+                isValid = false;
+            }
+            
+            if (!itemCategory) {
+                showError(document.getElementById('itemCategory'), 'itemCategoryError', '请选择类别');
+                isValid = false;
+            }
+            
+            if (!isValid) {
+                return;
+            }
+            
+            // 显示加载状态
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = '发布中...';
+            submitBtn.disabled = true;
+            submitBtn.classList.add('btn-loading');
+            
+            // 模拟提交延迟
+            setTimeout(function() {
+                // 构造物品对象
+                const item = {
+                    id: Date.now(),
+                    name: itemName,
+                    category: getCategoryName(itemCategory),
+                    condition: getCondition(),
+                    points: calculatePoints(itemCategory),
+                    publisher: '林小绿', // 从登录用户获取（目前固定）
+                    time: '刚刚'
+                };
+                
+                // 存入 localStorage
+                const usedItems = JSON.parse(localStorage.getItem('usedItems') || '[]');
+                usedItems.unshift(item); // 添加到数组开头
+                localStorage.setItem('usedItems', JSON.stringify(usedItems));
+                
+                alert('发布成功！您的闲置已提交审核');
+                
+                // 清空表单
+                document.getElementById('fileInput').value = '';
+                document.getElementById('itemName').value = '';
+                document.getElementById('itemCategory').value = '';
+                
+                // 重置新旧程度为九成新
+                const radioOptions = document.querySelectorAll('.radio-option');
+                radioOptions.forEach(opt => opt.classList.remove('active'));
+                radioOptions[1].classList.add('active');
+                
+                // 恢复按钮状态
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('btn-loading');
+            }, 800);
+        }
+        
+        // 获取类别名称
+        function getCategoryName(categoryValue) {
+            switch(categoryValue) {
+                case 'digital':
+                    return '数码';
+                case 'clothing':
+                    return '衣物';
+                case 'books':
+                    return '书籍';
+                case 'other':
+                    return '其他';
+                default:
+                    return '其他';
+            }
+        }
+        
+        // 获取新旧程度
+        function getCondition() {
+            const radioOptions = document.querySelectorAll('.radio-option');
+            for (let i = 0; i < radioOptions.length; i++) {
+                if (radioOptions[i].classList.contains('active')) {
+                    return radioOptions[i].textContent;
+                }
+            }
+            return '九成新'; // 默认值
+        }
+        
+        // 根据类别计算积分
+        function calculatePoints(categoryValue) {
+            switch(categoryValue) {
+                case 'digital':
+                    return 20;
+                case 'clothing':
+                    return 10;
+                case 'books':
+                    return 5;
+                case 'other':
+                    return 15;
+                default:
+                    return 15;
+            }
+        }
+    </script>
+    <script src="js/footer.js"></script>
 </body>
 </html>

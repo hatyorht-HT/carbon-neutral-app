@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>登录 - 碳账户</title>
-    <link rel="stylesheet" href="style.css">
+    <meta name="description" content="登录碳中和校园平台，查看个人减碳数据和参与环保活动。">
+    <title>登录 - 碳中和校园</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="css/style.css">
     <style>
         .login-container {
             padding: 40px 16px;
@@ -85,6 +87,11 @@
         
         .login-btn:hover {
             background-color: #27ae60;
+        }
+        
+        .btn-loading {
+            opacity: 0.7;
+            cursor: not-allowed;
         }
         
         .form-links {
@@ -203,17 +210,33 @@
         function login() {
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
+            const loginBtn = document.querySelector('.login-btn');
             
             if (!username || !password) {
                 alert('请输入用户名/密码');
                 return false;
             }
             
-            // 存储登录状态
-            localStorage.setItem('isLoggedIn', 'true');
+            // 显示加载状态
+            const originalText = loginBtn.textContent;
+            loginBtn.textContent = '登录中...';
+            loginBtn.disabled = true;
+            loginBtn.classList.add('btn-loading');
             
-            alert('登录成功');
-            window.location.href = 'index.html';
+            // 模拟登录延迟
+            setTimeout(function() {
+                // 存储登录状态
+                localStorage.setItem('isLoggedIn', 'true');
+                
+                alert('登录成功');
+                window.location.href = 'index.html';
+                
+                // 恢复按钮状态
+                loginBtn.textContent = originalText;
+                loginBtn.disabled = false;
+                loginBtn.classList.remove('btn-loading');
+            }, 800);
+            
             return false;
         }
         </script>
