@@ -60,12 +60,14 @@
         
         .market-image {
             width: 100%;
-            height: 120px;
+            aspect-ratio: 1 / 1;
             background-color: #f0f0f0;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 32px;
+            font-size: 40px;
+            border-radius: 8px;
+            margin-bottom: 8px;
         }
         
         .market-info {
@@ -234,30 +236,8 @@
                     card.className = 'market-card';
                     card.onclick = () => openModal(item);
                     
-                    // 根据类别选择图标
-                    let icon = '📦';
-                    switch(item.category) {
-                        case '数码':
-                            icon = '📱';
-                            break;
-                        case '衣物':
-                            icon = '👕';
-                            break;
-                        case '书籍':
-                            icon = '📚';
-                            break;
-                        case '家居':
-                            icon = '🏠';
-                            break;
-                        case '回收':
-                            icon = '♻️';
-                            break;
-                        default:
-                            icon = '📦';
-                    }
-                    
                     card.innerHTML = `
-                        <div class="market-image">${icon}</div>
+                        <div class="market-image">${item.image || '📷'}</div>
                         <div class="market-info">
                             <div class="market-name">${item.name}</div>
                             <div class="market-points">${item.points}积分</div>
@@ -278,8 +258,68 @@
             tabs.forEach(tab => tab.classList.remove('active'));
             event.target.classList.add('active');
             
-            // 这里可以添加分类筛选逻辑
-            alert('分类筛选功能开发中，您选择了：' + category);
+            // 分类筛选逻辑
+            const usedItems = JSON.parse(localStorage.getItem('usedItems') || '[]');
+            const marketGrid = document.getElementById('marketGrid');
+            const emptyMarket = document.getElementById('emptyMarket');
+            
+            // 根据分类筛选物品
+            let filteredItems = usedItems;
+            if (category !== 'all') {
+                // 映射分类值到中文类别名称
+                let categoryName = '';
+                switch(category) {
+                    case 'digital':
+                        categoryName = '数码';
+                        break;
+                    case 'clothing':
+                        categoryName = '衣物';
+                        break;
+                    case 'books':
+                        categoryName = '书籍';
+                        break;
+                    case 'home':
+                        categoryName = '家居';
+                        break;
+                    case 'recycle':
+                        categoryName = '回收';
+                        break;
+                    default:
+                        categoryName = '其他';
+                }
+                filteredItems = usedItems.filter(item => item.category === categoryName);
+            }
+            
+            // 重新渲染物品
+            if (filteredItems.length === 0) {
+                marketGrid.style.display = 'none';
+                emptyMarket.style.display = 'block';
+            } else {
+                marketGrid.style.display = 'grid';
+                emptyMarket.style.display = 'none';
+                
+                // 清空网格
+                marketGrid.innerHTML = '';
+                
+                // 生成卡片
+                filteredItems.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = 'market-card';
+                    card.onclick = () => openModal(item);
+                    
+                    card.innerHTML = `
+                        <div class="market-image">${item.image || '📷'}</div>
+                        <div class="market-info">
+                            <div class="market-name">${item.name}</div>
+                            <div class="market-points">${item.points}积分</div>
+                            <div class="market-publisher">${item.publisher}</div>
+                            <div class="market-time">${item.time}</div>
+                        </div>
+                    `;
+                    
+                    marketGrid.appendChild(card);
+                });
+            }
         }
         
         // 打开商品详情模态框
