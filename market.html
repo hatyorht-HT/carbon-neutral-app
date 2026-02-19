@@ -7,6 +7,8 @@
     <title>闲置市场 - 碳中和校园</title>
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabaseClient.js"></script>
     <style>
         /* 市场页面特有样式 */
         .market-header {
@@ -222,116 +224,142 @@
         let currentProduct = null;
         
         // 加载闲置物品
-        function loadUsedItems() {
-            const usedItems = JSON.parse(localStorage.getItem('usedItems') || '[]');
-            const marketGrid = document.getElementById('marketGrid');
-            const emptyMarket = document.getElementById('emptyMarket');
-            
-            if (usedItems.length === 0) {
-                marketGrid.style.display = 'none';
-                emptyMarket.style.display = 'block';
-            } else {
-                marketGrid.style.display = 'grid';
-                emptyMarket.style.display = 'none';
+        async function loadUsedItems() {
+            try {
+                // 从数据库获取闲置物品
+                const { data: usedItems, error } = await supabase
+                    .from('used_items')
+                    .select('*');
                 
-                // 清空网格
-                marketGrid.innerHTML = '';
+                if (error) {
+                    console.error('获取闲置物品失败:', error);
+                    return;
+                }
                 
-                // 生成卡片
-                usedItems.forEach(item => {
-                    const card = document.createElement('div');
-                    card.className = 'market-card';
-                    card.onclick = () => openModal(item);
+                const marketGrid = document.getElementById('marketGrid');
+                const emptyMarket = document.getElementById('emptyMarket');
+                
+                if (!usedItems || usedItems.length === 0) {
+                    marketGrid.style.display = 'none';
+                    emptyMarket.style.display = 'block';
+                } else {
+                    marketGrid.style.display = 'grid';
+                    emptyMarket.style.display = 'none';
                     
-                    card.innerHTML = `
-                        <div class="market-image">${item.image || '📷'}</div>
-                        <div class="market-info">
-                            <div class="market-name">${item.name}</div>
-                            <div class="item-price">¥${item.price || 0}</div>
-                            <div class="market-publisher">${item.publisher}</div>
-                            <div class="market-time">${item.time}</div>
-                        </div>
-                    `;
+                    // 清空网格
+                    marketGrid.innerHTML = '';
                     
-                    marketGrid.appendChild(card);
-                });
+                    // 生成卡片
+                    usedItems.forEach(item => {
+                        const card = document.createElement('div');
+                        card.className = 'market-card';
+                        card.onclick = () => openModal(item);
+                        
+                        card.innerHTML = `
+                            <div class="market-image">${item.image || '📷'}</div>
+                            <div class="market-info">
+                                <div class="market-name">${item.name}</div>
+                                <div class="item-price">¥${item.price || 0}</div>
+                                <div class="market-publisher">${item.publisher}</div>
+                                <div class="market-time">${item.time}</div>
+                            </div>
+                        `;
+                        
+                        marketGrid.appendChild(card);
+                    });
+                }
+            } catch (error) {
+                console.error('加载闲置物品失败:', error);
             }
         }
         
         // 筛选物品
-        function filterItems() {
-            const usedItems = JSON.parse(localStorage.getItem('usedItems') || '[]');
-            const marketGrid = document.getElementById('marketGrid');
-            const emptyMarket = document.getElementById('emptyMarket');
-            
-            // 根据分类和搜索筛选物品
-            let filteredItems = usedItems;
-            
-            // 分类筛选
-            if (currentCategory !== 'all') {
-                // 映射分类值到中文类别名称
-                let categoryName = '';
-                switch(currentCategory) {
-                    case 'digital':
-                        categoryName = '数码';
-                        break;
-                    case 'clothing':
-                        categoryName = '衣物';
-                        break;
-                    case 'books':
-                        categoryName = '书籍';
-                        break;
-                    case 'home':
-                        categoryName = '家居';
-                        break;
-                    case 'recycle':
-                        categoryName = '回收';
-                        break;
-                    default:
-                        categoryName = '其他';
+        async function filterItems() {
+            try {
+                // 从数据库获取闲置物品
+                let { data: usedItems, error } = await supabase
+                    .from('used_items')
+                    .select('*');
+                
+                if (error) {
+                    console.error('获取闲置物品失败:', error);
+                    return;
                 }
-                filteredItems = filteredItems.filter(item => item.category === categoryName);
-            }
-            
-            // 搜索筛选
-            if (currentSearch) {
-                const searchLower = currentSearch.toLowerCase();
-                filteredItems = filteredItems.filter(item => 
-                    item.name.toLowerCase().includes(searchLower)
-                );
-            }
-            
-            // 重新渲染物品
-            if (filteredItems.length === 0) {
-                marketGrid.style.display = 'none';
-                emptyMarket.style.display = 'block';
-                // 修改空状态文本
-                document.querySelector('.empty-market-text').textContent = currentSearch ? '未找到相关闲置' : '暂无闲置物品';
-            } else {
-                marketGrid.style.display = 'grid';
-                emptyMarket.style.display = 'none';
                 
-                // 清空网格
-                marketGrid.innerHTML = '';
+                const marketGrid = document.getElementById('marketGrid');
+                const emptyMarket = document.getElementById('emptyMarket');
                 
-                // 生成卡片
-                filteredItems.forEach(item => {
-                    const card = document.createElement('div');
-                    card.className = 'market-card';
-                    card.onclick = () => openModal(item);
+                // 根据分类和搜索筛选物品
+                let filteredItems = usedItems || [];
+                
+                // 分类筛选
+                if (currentCategory !== 'all') {
+                    // 映射分类值到中文类别名称
+                    let categoryName = '';
+                    switch(currentCategory) {
+                        case 'digital':
+                            categoryName = '数码';
+                            break;
+                        case 'clothing':
+                            categoryName = '衣物';
+                            break;
+                        case 'books':
+                            categoryName = '书籍';
+                            break;
+                        case 'home':
+                            categoryName = '家居';
+                            break;
+                        case 'recycle':
+                            categoryName = '回收';
+                            break;
+                        default:
+                            categoryName = '其他';
+                    }
+                    filteredItems = filteredItems.filter(item => item.category === categoryName);
+                }
+                
+                // 搜索筛选
+                if (currentSearch) {
+                    const searchLower = currentSearch.toLowerCase();
+                    filteredItems = filteredItems.filter(item => 
+                        item.name.toLowerCase().includes(searchLower)
+                    );
+                }
+                
+                // 重新渲染物品
+                if (filteredItems.length === 0) {
+                    marketGrid.style.display = 'none';
+                    emptyMarket.style.display = 'block';
+                    // 修改空状态文本
+                    document.querySelector('.empty-market-text').textContent = currentSearch ? '未找到相关闲置' : '暂无闲置物品';
+                } else {
+                    marketGrid.style.display = 'grid';
+                    emptyMarket.style.display = 'none';
                     
-                    card.innerHTML = `
-                        <div class="market-image">${item.image || '📷'}</div>
-                        <div class="market-info">
-                            <div class="market-name">${item.name}</div>
-                            <div class="item-price">¥${item.price || 0}</div>
-                            <div class="market-publisher">${item.publisher}</div>
-                            <div class="market-time">${item.time}</div>
-                        </div>
-                    `;
+                    // 清空网格
+                    marketGrid.innerHTML = '';
                     
-                    marketGrid.appendChild(card);
-                });
+                    // 生成卡片
+                    filteredItems.forEach(item => {
+                        const card = document.createElement('div');
+                        card.className = 'market-card';
+                        card.onclick = () => openModal(item);
+                        
+                        card.innerHTML = `
+                            <div class="market-image">${item.image || '📷'}</div>
+                            <div class="market-info">
+                                <div class="market-name">${item.name}</div>
+                                <div class="item-price">¥${item.price || 0}</div>
+                                <div class="market-publisher">${item.publisher}</div>
+                                <div class="market-time">${item.time}</div>
+                            </div>
+                        `;
+                        
+                        marketGrid.appendChild(card);
+                    });
+                }
+            } catch (error) {
+                console.error('筛选物品失败:', error);
             }
         }
         
@@ -403,7 +431,7 @@
         }
         
         // 购买商品
-        function purchaseProduct() {
+        async function purchaseProduct() {
             if (!currentProduct) return;
             
             const purchaseBtn = document.querySelector('.modal-btn');
@@ -412,31 +440,47 @@
             purchaseBtn.disabled = true;
             purchaseBtn.classList.add('btn-loading');
             
-            setTimeout(function() {
+            try {
                 // 确认购买
                 if (confirm(`确认花费 ¥${currentProduct.price || 0} 购买此商品？`)) {
                     // 给购买者增加积分奖励
-                    const user = localStorage.getItem('username') || '林小绿';
-                    const key = `points_${user}`;
-                    const currentPoints = parseInt(localStorage.getItem(key)) || 0;
-                    const newPoints = currentPoints + 5;
-                    localStorage.setItem(key, newPoints.toString());
+                    const username = localStorage.getItem('username') || '林小绿';
+                    const pointsToAdd = 5;
                     
-                    // 从 localStorage 中删除该商品
-                    const usedItems = JSON.parse(localStorage.getItem('usedItems') || '[]');
-                    const updatedItems = usedItems.filter(item => item.id !== currentProduct.id);
-                    localStorage.setItem('usedItems', JSON.stringify(updatedItems));
+                    // 更新用户积分
+                    const { error: pointsError } = await supabase
+                        .from('profiles')
+                        .update({ points: supabase.raw(`points + ${pointsToAdd}`) })
+                        .eq('username', username);
+                    
+                    if (pointsError) {
+                        throw pointsError;
+                    }
+                    
+                    // 从数据库中删除该商品
+                    const { error: deleteError } = await supabase
+                        .from('used_items')
+                        .delete()
+                        .eq('id', currentProduct.id);
+                    
+                    if (deleteError) {
+                        throw deleteError;
+                    }
                     
                     // 刷新市场列表
-                    loadUsedItems();
+                    await loadUsedItems();
                     
                     alert('购买成功！获得5积分');
                 }
+            } catch (error) {
+                console.error('购买商品失败:', error);
+                alert('购买失败，请稍后重试');
+            } finally {
                 closeModal();
                 purchaseBtn.textContent = originalText;
                 purchaseBtn.disabled = false;
                 purchaseBtn.classList.remove('btn-loading');
-            }, 800);
+            }
         }
         
         // 点击模态框外部关闭
@@ -447,26 +491,8 @@
             }
         }
         
-        // 初始化模拟数据
-        function initMockData() {
-            if (!localStorage.getItem('usedItems')) {
-                const mockItems = [
-                    { id: 1, name: '中古玻璃瓶', category: '家居', points: 15, publisher: '绿色旅人', time: '2小时前', image: '📷' },
-                    { id: 2, name: '复古台灯', category: '家居', points: 25, publisher: '低碳小王', time: '昨天', image: '📷' },
-                    { id: 3, name: '二手自行车', category: '出行', points: 120, publisher: '森林守护者', time: '3天前', image: '📷' },
-                    { id: 4, name: '智能手机', category: '数码', points: 50, publisher: '林小绿', time: '刚刚', image: '📷' },
-                    { id: 5, name: '纯棉T恤', category: '衣物', points: 10, publisher: '林小绿', time: '1小时前', image: '📷' },
-                    { id: 6, name: '编程书籍', category: '书籍', points: 8, publisher: '低碳小王', time: '4小时前', image: '📷' },
-                    { id: 7, name: '蓝牙耳机', category: '数码', points: 30, publisher: '绿色旅人', time: '1天前', image: '📷' },
-                    { id: 8, name: '瑜伽垫', category: '运动', points: 20, publisher: '森林守护者', time: '2天前', image: '📷' }
-                ];
-                localStorage.setItem('usedItems', JSON.stringify(mockItems));
-            }
-        }
-        
-        // 页面加载时检查登录状态和初始化数据
+        // 页面加载时检查登录状态
         window.onload = function() {
-            initMockData();
             checkLoginStatus();
         };
     </script>

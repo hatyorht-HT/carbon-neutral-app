@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <meta name="description" content="注册碳中和校园平台，创建新账号参与环保活动。">
+    <title>注册 - 碳中和校园</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .register-container {
+            padding: 40px 16px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .logo-section {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .logo-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+        
+        .app-name {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2ecc71;
+            margin-bottom: 8px;
+        }
+        
+        .app-subtitle {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .register-form {
+            background-color: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 24px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.2s;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #2ecc71;
+        }
+        
+        .register-btn {
+            width: 100%;
+            height: 48px;
+            padding: 12px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 16px;
+            transition: background-color 0.2s;
+        }
+        
+        .register-btn:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .btn-loading {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        
+        .login-link {
+            text-align: center;
+            font-size: 14px;
+        }
+        
+        .login-link a {
+            color: #2ecc71;
+            text-decoration: none;
+        }
+        
+        .error-message {
+            color: #e74c3c;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+        
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            color: #999;
+            margin-top: auto;
+            padding-bottom: 24px;
+        }
+        
+        .footer a {
+            color: #2ecc71;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <!-- 顶部 Logo/标题 -->
+        <div class="logo-section">
+            <div class="logo-icon">🌱</div>
+            <div class="app-name">碳账户</div>
+            <div class="app-subtitle">让每一次减碳都有意义</div>
+        </div>
+        
+        <!-- 注册表单卡片 -->
+        <div class="register-form">
+            <form onsubmit="return register()">
+                <div class="form-group">
+                    <label for="username">用户名</label>
+                    <input type="text" id="username" placeholder="请输入用户名">
+                    <div id="usernameError" class="error-message"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="contact">手机号/邮箱</label>
+                    <input type="text" id="contact" placeholder="请输入手机号或邮箱">
+                    <div id="contactError" class="error-message"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">密码</label>
+                    <input type="password" id="password" placeholder="请输入密码">
+                    <div id="passwordError" class="error-message"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirmPassword">确认密码</label>
+                    <input type="password" id="confirmPassword" placeholder="请再次输入密码">
+                    <div id="confirmPasswordError" class="error-message"></div>
+                </div>
+                
+                <button type="submit" class="register-btn">注册</button>
+                
+                <div class="login-link">
+                    已有账号？<a href="login.html">去登录</a>
+                </div>
+            </form>
+        </div>
+        
+        <!-- 页脚 -->
+        <div class="footer">
+            注册即表示您同意
+            <a href="#" onclick="alert('协议内容暂略'); return false;">《用户协议》</a>
+            和
+            <a href="#" onclick="alert('协议内容暂略'); return false;">《隐私政策》</a>
+        </div>
+    </div>
+    
+    <script>
+        // 表单验证
+        function validateForm() {
+            let isValid = true;
+            
+            // 清空之前的错误信息
+            document.getElementById('usernameError').textContent = '';
+            document.getElementById('contactError').textContent = '';
+            document.getElementById('passwordError').textContent = '';
+            document.getElementById('confirmPasswordError').textContent = '';
+            
+            // 获取表单值
+            const username = document.getElementById('username').value.trim();
+            const contact = document.getElementById('contact').value.trim();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            // 验证用户名
+            if (!username) {
+                document.getElementById('usernameError').textContent = '用户名不能为空';
+                isValid = false;
+            } else {
+                // 检查用户名是否已存在
+                const users = JSON.parse(localStorage.getItem('users') || '{}');
+                if (users[username]) {
+                    document.getElementById('usernameError').textContent = '用户名已存在';
+                    isValid = false;
+                }
+            }
+            
+            // 验证手机号/邮箱
+            if (!contact) {
+                document.getElementById('contactError').textContent = '手机号/邮箱不能为空';
+                isValid = false;
+            }
+            
+            // 验证密码
+            if (!password) {
+                document.getElementById('passwordError').textContent = '密码不能为空';
+                isValid = false;
+            }
+            
+            // 验证确认密码
+            if (!confirmPassword) {
+                document.getElementById('confirmPasswordError').textContent = '请再次输入密码';
+                isValid = false;
+            } else if (password !== confirmPassword) {
+                document.getElementById('confirmPasswordError').textContent = '两次输入的密码不一致';
+                isValid = false;
+            }
+            
+            return isValid;
+        }
+        
+        // 注册逻辑
+        function register() {
+            if (!validateForm()) {
+                return false;
+            }
+            
+            // 获取表单值
+            const username = document.getElementById('username').value.trim();
+            const contact = document.getElementById('contact').value.trim();
+            const password = document.getElementById('password').value;
+            
+            const registerBtn = document.querySelector('.register-btn');
+            const originalText = registerBtn.textContent;
+            registerBtn.textContent = '注册中...';
+            registerBtn.disabled = true;
+            registerBtn.classList.add('btn-loading');
+            
+            // 模拟注册延迟
+            setTimeout(function() {
+                // 获取现有用户数据
+                const users = JSON.parse(localStorage.getItem('users') || '{}');
+                
+                // 创建新用户
+                const now = new Date();
+                const joinedDate = now.getFullYear() + '年' + (now.getMonth() + 1) + '月';
+                
+                users[username] = {
+                    password: password,
+                    points: 0,
+                    joinedDate: joinedDate,
+                    totalDonated: 0,
+                    totalSaved: 0,
+                    posts: []
+                };
+                
+                // 保存用户数据
+                localStorage.setItem('users', JSON.stringify(users));
+                
+                // 自动登录
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('currentUsername', username);
+                
+                alert('注册成功！');
+                window.location.href = 'index.html';
+                
+                // 恢复按钮状态
+                registerBtn.textContent = originalText;
+                registerBtn.disabled = false;
+                registerBtn.classList.remove('btn-loading');
+            }, 800);
+            
+            return false;
+        }
+        
+        // 实时验证
+        document.addEventListener('DOMContentLoaded', function() {
+            const usernameInput = document.getElementById('username');
+            const contactInput = document.getElementById('contact');
+            const passwordInput = document.getElementById('password');
+            const confirmPasswordInput = document.getElementById('confirmPassword');
+            
+            // 用户名验证
+            usernameInput.addEventListener('blur', function() {
+                const username = this.value.trim();
+                const errorElement = document.getElementById('usernameError');
+                
+                if (!username) {
+                    errorElement.textContent = '用户名不能为空';
+                } else {
+                    const users = JSON.parse(localStorage.getItem('users') || '{}');
+                    if (users[username]) {
+                        errorElement.textContent = '用户名已存在';
+                    } else {
+                        errorElement.textContent = '';
+                    }
+                }
+            });
+            
+            // 手机号/邮箱验证
+            contactInput.addEventListener('blur', function() {
+                const contact = this.value.trim();
+                const errorElement = document.getElementById('contactError');
+                
+                if (!contact) {
+                    errorElement.textContent = '手机号/邮箱不能为空';
+                } else {
+                    errorElement.textContent = '';
+                }
+            });
+            
+            // 密码验证
+            passwordInput.addEventListener('blur', function() {
+                const password = this.value;
+                const errorElement = document.getElementById('passwordError');
+                
+                if (!password) {
+                    errorElement.textContent = '密码不能为空';
+                } else {
+                    errorElement.textContent = '';
+                }
+            });
+            
+            // 确认密码验证
+            confirmPasswordInput.addEventListener('blur', function() {
+                const confirmPassword = this.value;
+                const password = document.getElementById('password').value;
+                const errorElement = document.getElementById('confirmPasswordError');
+                
+                if (!confirmPassword) {
+                    errorElement.textContent = '请再次输入密码';
+                } else if (password !== confirmPassword) {
+                    errorElement.textContent = '两次输入的密码不一致';
+                } else {
+                    errorElement.textContent = '';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

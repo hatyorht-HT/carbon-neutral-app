@@ -229,8 +229,10 @@
             submitBtn.disabled = true;
             submitBtn.classList.add('btn-loading');
             
-            // 模拟提交延迟
-            setTimeout(function() {
+            try {
+                // 获取当前用户名
+                const username = getCurrentUser() || '林小绿';
+                
                 // 构造物品对象
                 const item = {
                     id: Date.now(),
@@ -238,22 +240,24 @@
                     category: getCategoryName(itemCategory),
                     condition: getCondition(),
                     price: itemPrice,
-                    publisher: '林小绿', // 从登录用户获取（目前固定）
+                    publisher: username,
                     time: '刚刚',
                     image: '📷' // 添加默认图片占位符
                 };
                 
-                // 存入 localStorage
+                // 存入 localStorage（暂时保留以便其他页面使用）
                 const usedItems = JSON.parse(localStorage.getItem('usedItems') || '[]');
                 usedItems.unshift(item); // 添加到数组开头
                 localStorage.setItem('usedItems', JSON.stringify(usedItems));
                 
                 // 增加发布者积分
-                const user = localStorage.getItem('username') || '林小绿';
-                const key = `points_${user}`;
-                const currentPoints = parseInt(localStorage.getItem(key)) || 0;
-                const newPoints = currentPoints + 10;
-                localStorage.setItem(key, newPoints.toString());
+                const pointsToAdd = 10;
+                const success = addUserPoints(username, pointsToAdd);
+                
+                if (!success) {
+                    console.error('更新积分失败');
+                    throw new Error('更新积分失败');
+                }
                 
                 alert('发布成功！您的闲置已提交审核，获得10积分奖励');
                 
@@ -270,12 +274,15 @@
                 const radioOptions = document.querySelectorAll('.radio-option');
                 radioOptions.forEach(opt => opt.classList.remove('active'));
                 radioOptions[1].classList.add('active');
-                
+            } catch (error) {
+                console.error('发布失败:', error);
+                alert('发布失败，请稍后重试');
+            } finally {
                 // 恢复按钮状态
                 submitBtn.textContent = originalText;
                 submitBtn.disabled = false;
                 submitBtn.classList.remove('btn-loading');
-            }, 800);
+            }
         }
         
         // 获取类别名称

@@ -7,6 +7,8 @@
     <title>登录 - 碳中和校园</title>
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabaseClient.js"></script>
     <style>
         .login-container {
             padding: 40px 16px;
@@ -181,7 +183,7 @@
                 <button type="submit" class="login-btn">登录</button>
                 
                 <div class="form-links">
-                    <a href="#" onclick="alert('注册功能开发中'); return false;">注册账号</a>
+                    <a href="register.html">注册账号</a>
                     <a href="#" onclick="alert('密码重置功能开发中'); return false;">忘记密码？</a>
                 </div>
             </form>
@@ -208,8 +210,26 @@
     </div>
     
     <script>
+        // 数据迁移：初始化默认用户
+        function initDefaultUser() {
+            if (!localStorage.getItem('users')) {
+                const defaultUsers = {
+                    '林小绿': {
+                        password: '123456',
+                        points: 2450,
+                        joinedDate: '2023年1月',
+                        totalDonated: 124,
+                        totalSaved: 1240,
+                        posts: []
+                    }
+                };
+                localStorage.setItem('users', JSON.stringify(defaultUsers));
+            }
+        }
+        
+        // 登录逻辑
         function login() {
-            const username = document.getElementById('username').value;
+            const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value;
             const loginBtn = document.querySelector('.login-btn');
             
@@ -224,22 +244,51 @@
             loginBtn.disabled = true;
             loginBtn.classList.add('btn-loading');
             
+            // 初始化默认用户
+            initDefaultUser();
+            
             // 模拟登录延迟
             setTimeout(function() {
-                // 存储登录状态
-                localStorage.setItem('isLoggedIn', 'true');
-                
-                alert('登录成功');
-                window.location.href = 'index.html';
-                
-                // 恢复按钮状态
-                loginBtn.textContent = originalText;
-                loginBtn.disabled = false;
-                loginBtn.classList.remove('btn-loading');
+                try {
+                    // 从 localStorage 读取用户数据
+                    const users = JSON.parse(localStorage.getItem('users') || '{}');
+                    
+                    // 验证用户
+                    const user = users[username];
+                    if (!user) {
+                        alert('用户名不存在');
+                        return;
+                    }
+                    
+                    if (user.password !== password) {
+                        alert('密码错误');
+                        return;
+                    }
+                    
+                    // 存储登录状态
+                    localStorage.setItem('isLoggedIn', 'true');
+                    localStorage.setItem('currentUsername', username);
+                    
+                    alert('登录成功');
+                    window.location.href = 'index.html';
+                } catch (error) {
+                    console.error('登录失败:', error);
+                    alert('登录失败，请稍后重试');
+                } finally {
+                    // 恢复按钮状态
+                    loginBtn.textContent = originalText;
+                    loginBtn.disabled = false;
+                    loginBtn.classList.remove('btn-loading');
+                }
             }, 800);
             
             return false;
         }
+        
+        // 页面加载时初始化默认用户
+        window.onload = function() {
+            initDefaultUser();
+        };
         </script>
 </body>
 </html>

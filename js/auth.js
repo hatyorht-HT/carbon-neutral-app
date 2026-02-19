@@ -11,17 +11,57 @@ function login() {
 // 退出登录
 function logout() {
     localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('currentUsername');
     showToast('已退出登录');
     location.reload();
 }
 
-// 获取当前用户
+// 获取当前用户名
 function getCurrentUser() {
-    // 从localStorage获取用户信息，目前返回默认值
-    return {
-        name: localStorage.getItem('username') || '林小绿',
-        id: localStorage.getItem('userId') || '1'
-    };
+    return localStorage.getItem('currentUsername') || null;
+}
+
+// 获取用户数据
+function getUserData(username) {
+    try {
+        const users = JSON.parse(localStorage.getItem('users') || '{}');
+        return users[username] || null;
+    } catch (error) {
+        console.error('获取用户数据失败:', error);
+        return null;
+    }
+}
+
+// 更新用户数据
+function updateUserData(username, newData) {
+    try {
+        const users = JSON.parse(localStorage.getItem('users') || '{}');
+        if (users[username]) {
+            users[username] = { ...users[username], ...newData };
+            localStorage.setItem('users', JSON.stringify(users));
+            return true;
+        }
+        return false;
+    } catch (error) {
+        console.error('更新用户数据失败:', error);
+        return false;
+    }
+}
+
+// 增加用户积分
+function addUserPoints(username, amount) {
+    try {
+        const users = JSON.parse(localStorage.getItem('users') || '{}');
+        if (users[username]) {
+            users[username].points = (users[username].points || 0) + amount;
+            localStorage.setItem('users', JSON.stringify(users));
+            return true;
+        }
+        return false;
+    } catch (error) {
+        console.error('增加用户积分失败:', error);
+        return false;
+    }
 }
 
 // 要求登录
@@ -83,7 +123,25 @@ function showToast(message, duration = 2000) {
     }, duration);
 }
 
+// 初始化默认用户
+function initDefaultUser() {
+    if (!localStorage.getItem('users')) {
+        const defaultUsers = {
+            '林小绿': {
+                password: '123456',
+                points: 2450,
+                joinedDate: '2023年1月',
+                totalDonated: 124,
+                totalSaved: 1240,
+                posts: []
+            }
+        };
+        localStorage.setItem('users', JSON.stringify(defaultUsers));
+    }
+}
+
 // 页面加载时检查登录状态
 document.addEventListener('DOMContentLoaded', function() {
-    // 可以在这里添加全局的登录状态检查逻辑
+    // 初始化默认用户
+    initDefaultUser();
 });

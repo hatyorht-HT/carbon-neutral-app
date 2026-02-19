@@ -16,9 +16,9 @@
             <div style="position: relative; text-align: center; margin: 24px 0; cursor: pointer;" onclick="alert('个人资料设置')">
                 <button id="logoutBtn" style="display: none; position: absolute; top: 0; right: 0; background: none; border: 1px solid #2ecc71; color: #2ecc71; border-radius: 6px; padding: 6px 12px; font-size: 14px; cursor: pointer;" onclick="logout(); event.stopPropagation();">退出登录</button>
                 <div style="width: 80px; height: 80px; border-radius: 50%; background-color: #f0fdf4; display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 0 auto 16px;">👤</div>
-                <h2>林小绿</h2>
+                <h2 id="userName">林小绿</h2>
                 <div style="color: #2ecc71; font-size: 14px; margin: 4px 0;">减碳先锋</div>
-                <div style="color: #666; font-size: 12px;">自2023年1月加入</div>
+                <div id="joinedDate" style="color: #666; font-size: 12px;">自2023年1月加入</div>
             </div>
             
             <!-- 环形进度条 -->
@@ -86,7 +86,7 @@
     </div>
     
     <script>
-        // 检查登录状态
+        // 检查登录状态并更新用户信息
         function checkLoginStatus() {
             const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
             const loggedInContent = document.getElementById('loggedInContent');
@@ -97,10 +97,8 @@
                 loggedInContent.style.display = 'block';
                 notLoggedInContent.style.display = 'none';
                 logoutBtn.style.display = 'inline-block';
-                // 更新积分显示
-                if (typeof updatePointsDisplay === 'function') {
-                    updatePointsDisplay();
-                }
+                // 更新用户信息显示
+                updateUserInfoDisplay();
             } else {
                 loggedInContent.style.display = 'none';
                 notLoggedInContent.style.display = 'block';
@@ -108,11 +106,43 @@
             }
         }
         
-        // 退出登录
-        function logout() {
-            localStorage.removeItem('isLoggedIn');
-            alert('已退出登录');
-            location.reload();
+        // 更新用户信息显示
+        function updateUserInfoDisplay() {
+            const username = getCurrentUser();
+            if (!username) return;
+            
+            const userData = getUserData(username);
+            if (!userData) return;
+            
+            // 更新用户名
+            const userNameElement = document.getElementById('userName');
+            if (userNameElement) {
+                userNameElement.textContent = username;
+            }
+            
+            // 更新加入时间
+            const joinedDateElement = document.getElementById('joinedDate');
+            if (joinedDateElement) {
+                joinedDateElement.textContent = `自${userData.joinedDate}加入`;
+            }
+            
+            // 更新累计捐赠物品
+            const donatedElement = document.querySelector('.stat-card:nth-child(1) .stat-value');
+            if (donatedElement) {
+                donatedElement.textContent = userData.totalDonated || 0;
+            }
+            
+            // 更新累计节省开支
+            const savedElement = document.querySelector('.stat-card:nth-child(2) .stat-value');
+            if (savedElement) {
+                savedElement.textContent = `¥${(userData.totalSaved || 0).toLocaleString()}`;
+            }
+            
+            // 更新当前绿分
+            const pointsElement = document.querySelector('[data-points]');
+            if (pointsElement) {
+                pointsElement.textContent = userData.points || 0;
+            }
         }
         
         // 页面加载时检查登录状态
@@ -122,7 +152,6 @@
 
     
     <script src="js/auth.js"></script>
-    <script src="js/points.js"></script>
     <script src="js/script.js"></script>
     <script src="js/footer.js"></script>
 </body>

@@ -7,6 +7,8 @@
     <title>积分商城 - 碳中和校园</title>
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabaseClient.js"></script>
     <style>
         /* 商城页面特有样式 */
         .market-header {
@@ -173,7 +175,6 @@
     </div>
     
     <script src="js/auth.js"></script>
-    <script src="js/points.js"></script>
     <script src="js/script.js"></script>
     <script>
         // 商品数据
@@ -196,6 +197,39 @@
         let currentShopCategory = 'all';
         let currentShopSearch = '';
         let currentProduct = null;
+        
+        // 从数据库获取用户积分
+        async function fetchUserPoints() {
+            const username = localStorage.getItem('username');
+            if (!username) return 0;
+            
+            try {
+                const { data: user, error } = await supabase
+                    .from('profiles')
+                    .select('points')
+                    .eq('username', username)
+                    .single();
+                
+                if (error) {
+                    console.error('获取积分失败:', error);
+                    return 0;
+                }
+                
+                return user.points || 0;
+            } catch (error) {
+                console.error('获取积分失败:', error);
+                return 0;
+            }
+        }
+        
+        // 更新积分显示
+        async function updatePointsDisplay() {
+            const points = await fetchUserPoints();
+            const pointsElement = document.querySelector('.card div[style*="font-size: 24px"]');
+            if (pointsElement) {
+                pointsElement.textContent = points.toLocaleString() + ' 积分';
+            }
+        }
         
         // 渲染商品
         function renderShopProducts() {
@@ -286,7 +320,7 @@
         }
         
         // 兑换商品
-        function exchangeProduct() {
+        async function exchangeProduct() {
             if (!currentProduct) return;
             
             const exchangeBtn = document.querySelector('.modal-btn');
@@ -295,34 +329,40 @@
             exchangeBtn.disabled = true;
             exchangeBtn.classList.add('btn-loading');
             
-            // 获取当前积分余额
-            let currentPoints = getUserPoints();
-            const productPoints = currentProduct.points;
-            
-            setTimeout(function() {
+            try {
+                // 获取当前积分余额
+                const currentPoints = await fetchUserPoints();
+                const productPoints = currentProduct.points;
+                
                 if (currentPoints >= productPoints) {
                     // 扣除积分
-                    const user = getCurrentUser();
-                    const key = `points_${user}`;
-                    const newPoints = currentPoints - productPoints;
-                    localStorage.setItem(key, newPoints.toString());
+                    const username = localStorage.getItem('username') || '林小绿';
+                    
+                    const { error: updateError } = await supabase
+                        .from('profiles')
+                        .update({ points: supabase.raw(`points - ${productPoints}`) })
+                        .eq('username', username);
+                    
+                    if (updateError) {
+                        throw updateError;
+                    }
                     
                     // 更新页面上的积分余额
-                    const pointsElement = document.querySelector('.card div[style*="font-size: 24px"]');
-                    if (pointsElement) {
-                        pointsElement.textContent = newPoints.toLocaleString() + ' 积分';
-                    }
+                    await updatePointsDisplay();
                     
                     alert('兑换成功，已扣除' + productPoints + '积分');
                 } else {
                     alert('积分不足，无法兑换此商品');
                 }
-                
+            } catch (error) {
+                console.error('兑换商品失败:', error);
+                alert('兑换失败，请稍后重试');
+            } finally {
                 closeModal();
                 exchangeBtn.textContent = originalText;
                 exchangeBtn.disabled = false;
                 exchangeBtn.classList.remove('btn-loading');
-            }, 800);
+            }
         }
         
         // 点击模态框外部关闭
@@ -334,7 +374,7 @@
         }
         
         // 绑定搜索事件
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
             const searchInput = document.getElementById('shopSearchInput');
             if (searchInput) {
                 searchInput.addEventListener('input', function() {
@@ -344,11 +384,7 @@
             }
             
             // 更新积分余额显示
-            const pointsElement = document.querySelector('.card div[style*="font-size: 24px"]');
-            if (pointsElement) {
-                const currentPoints = getUserPoints();
-                pointsElement.textContent = currentPoints.toLocaleString() + ' 积分';
-            }
+            await updatePointsDisplay();
             
             // 初始渲染商品
             renderShopProducts();
