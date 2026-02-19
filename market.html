@@ -227,9 +227,9 @@
         async function loadUsedItems() {
             try {
                 // 从数据库获取闲置物品
-                const { data: usedItems, error } = await supabase
-                    .from('used_items')
-                    .select('*');
+            const { data: usedItems, error } = await supabaseClient
+                .from('used_items')
+                .select('*');
                 
                 if (error) {
                     console.error('获取闲置物品失败:', error);
@@ -277,7 +277,7 @@
         async function filterItems() {
             try {
                 // 从数据库获取闲置物品
-                let { data: usedItems, error } = await supabase
+                let { data: usedItems, error } = await supabaseClient
                     .from('used_items')
                     .select('*');
                 
@@ -448,9 +448,9 @@
                     const pointsToAdd = 5;
                     
                     // 更新用户积分
-                    const { error: pointsError } = await supabase
+                    const { error: pointsError } = await supabaseClient
                         .from('profiles')
-                        .update({ points: supabase.raw(`points + ${pointsToAdd}`) })
+                        .update({ points: supabaseClient.raw(`points + ${pointsToAdd}`) })
                         .eq('username', username);
                     
                     if (pointsError) {
@@ -458,7 +458,7 @@
                     }
                     
                     // 从数据库中删除该商品
-                    const { error: deleteError } = await supabase
+                    const { error: deleteError } = await supabaseClient
                         .from('used_items')
                         .delete()
                         .eq('id', currentProduct.id);

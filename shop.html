@@ -204,7 +204,7 @@
             if (!username) return 0;
             
             try {
-                const { data: user, error } = await supabase
+                const { data: user, error } = await supabaseClient
                     .from('profiles')
                     .select('points')
                     .eq('username', username)
@@ -338,9 +338,9 @@
                     // 扣除积分
                     const username = localStorage.getItem('username') || '林小绿';
                     
-                    const { error: updateError } = await supabase
+                    const { error: updateError } = await supabaseClient
                         .from('profiles')
-                        .update({ points: supabase.raw(`points - ${productPoints}`) })
+                        .update({ points: supabaseClient.raw(`points - ${productPoints}`) })
                         .eq('username', username);
                     
                     if (updateError) {
