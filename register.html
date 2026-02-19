@@ -7,6 +7,8 @@
     <title>注册 - 碳中和校园</title>
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabaseClient.js"></script>
     <style>
         .register-container {
             padding: 40px 16px;
@@ -60,7 +62,7 @@
         .form-group input {
             width: 100%;
             padding: 12px;
-            border: 1px solid #e0e0e0;
+            border:1px solid #e0e0e0;
             border-radius: 8px;
             font-size: 16px;
             transition: border-color 0.2s;
@@ -136,7 +138,7 @@
         
         <!-- 注册表单卡片 -->
         <div class="register-form">
-            <form onsubmit="return register()">
+            <form onsubmit="event.preventDefault(); return register();">
                 <div class="form-group">
                     <label for="username">用户名</label>
                     <input type="text" id="username" placeholder="请输入用户名">
@@ -144,8 +146,8 @@
                 </div>
                 
                 <div class="form-group">
-                    <label for="contact">手机号/邮箱</label>
-                    <input type="text" id="contact" placeholder="请输入手机号或邮箱">
+                    <label for="contact">邮箱</label>
+                    <input type="email" id="contact" placeholder="请输入邮箱">
                     <div id="contactError" class="error-message"></div>
                 </div>
                 
@@ -199,18 +201,14 @@
             if (!username) {
                 document.getElementById('usernameError').textContent = '用户名不能为空';
                 isValid = false;
-            } else {
-                // 检查用户名是否已存在
-                const users = JSON.parse(localStorage.getItem('users') || '{}');
-                if (users[username]) {
-                    document.getElementById('usernameError').textContent = '用户名已存在';
-                    isValid = false;
-                }
             }
             
-            // 验证手机号/邮箱
+            // 验证邮箱
             if (!contact) {
-                document.getElementById('contactError').textContent = '手机号/邮箱不能为空';
+                document.getElementById('contactError').textContent = '邮箱不能为空';
+                isValid = false;
+            } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact)) {
+                document.getElementById('contactError').textContent = '请输入有效的邮箱地址';
                 isValid = false;
             }
             
@@ -233,15 +231,22 @@
         }
         
         // 注册逻辑
-        function register() {
+        async function register() {
             if (!validateForm()) {
                 return false;
             }
             
             // 获取表单值
             const username = document.getElementById('username').value.trim();
-            const contact = document.getElementById('contact').value.trim();
+            const phoneEmail = document.getElementById('contact').value.trim();
             const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            // 校验两次输入的密码是否一致
+            if (password !== confirmPassword) {
+                alert('两次输入的密码不一致');
+                return false;
+            }
             
             const registerBtn = document.querySelector('.register-btn');
             const originalText = registerBtn.textContent;
@@ -249,39 +254,117 @@
             registerBtn.disabled = true;
             registerBtn.classList.add('btn-loading');
             
-            // 模拟注册延迟
-            setTimeout(function() {
-                // 获取现有用户数据
-                const users = JSON.parse(localStorage.getItem('users') || '{}');
+            try {
+                // 首先检查用户名是否已存在
+                const { data: existingUser, error: checkError } = await supabaseClient
+                    .from('profiles')
+                    .select('username')
+                    .eq('username', username)
+                    .single();
                 
-                // 创建新用户
+                if (checkError && checkError.code !== 'PGRST116') {
+                    console.error('检查用户名失败:', checkError);
+                }
+                
+                if (existingUser) {
+                    alert('该用户名已被使用，请选择其他用户名');
+                    registerBtn.textContent = originalText;
+                    registerBtn.disabled = false;
+                    registerBtn.classList.remove('btn-loading');
+                    return false;
+                }
+                
+                // 检查邮箱是否已存在
+                const { data: existingEmail, error: emailCheckError } = await supabaseClient
+                    .from('profiles')
+                    .select('phone_email')
+                    .eq('phone_email', phoneEmail)
+                    .single();
+                
+                if (emailCheckError && emailCheckError.code !== 'PGRST116') {
+                    console.error('检查邮箱失败:', emailCheckError);
+                }
+                
+                if (existingEmail) {
+                    alert('该邮箱已被注册，请使用其他邮箱或直接登录');
+                    registerBtn.textContent = originalText;
+                    registerBtn.disabled = false;
+                    registerBtn.classList.remove('btn-loading');
+                    return false;
+                }
+                
+                // 调用 supabase.auth.signUp 创建用户
+                const { data: authData, error: authError } = await supabaseClient.auth.signUp({
+                    email: phoneEmail,
+                    password: password,
+                    options: {
+                        data: {
+                            username: username
+                        }
+                    }
+                });
+                
+                if (authError) {
+                    console.error('注册失败:', authError);
+                    alert('注册失败：' + authError.message);
+                    registerBtn.textContent = originalText;
+                    registerBtn.disabled = false;
+                    registerBtn.classList.remove('btn-loading');
+                    return false;
+                }
+                
+                console.log('用户注册成功:', authData);
+                
+                // 等待 500ms，防止数据库主从同步延迟导致的写入失败
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                // 注册成功后，立即向 public.profiles 表插入一条新记录
                 const now = new Date();
                 const joinedDate = now.getFullYear() + '年' + (now.getMonth() + 1) + '月';
                 
-                users[username] = {
-                    password: password,
-                    points: 0,
-                    joinedDate: joinedDate,
-                    totalDonated: 0,
-                    totalSaved: 0,
-                    posts: []
-                };
+                const { data: profileData, error: profileError } = await supabaseClient
+                    .from('profiles')
+                    .insert([{
+                        username: username,
+                        phone_email: phoneEmail,
+                        points: 0,
+                        joinedDate: joinedDate,
+                        totalDonated: 0,
+                        totalSaved: 0,
+                        avatar_url: null
+                    }]);
                 
-                // 保存用户数据
-                localStorage.setItem('users', JSON.stringify(users));
+                if (profileError) {
+                    console.error('创建用户资料失败:', profileError);
+                    console.error('错误代码:', profileError.code);
+                    console.error('错误消息:', profileError.message);
+                    console.error('错误详情:', profileError.details);
+                    console.error('错误提示:', profileError.hint);
+                    
+                    alert('注册失败！账号已创建但用户资料创建失败。\n\n错误信息：' + profileError.message + '\n\n请手动清理 Supabase Auth 中的用户后重新注册。\n\n用户邮箱：' + phoneEmail + '\n用户名：' + username);
+                    registerBtn.textContent = originalText;
+                    registerBtn.disabled = false;
+                    registerBtn.classList.remove('btn-loading');
+                    return false;
+                }
                 
-                // 自动登录
-                localStorage.setItem('isLoggedIn', 'true');
-                localStorage.setItem('currentUsername', username);
+                console.log('用户资料创建成功:', profileData);
                 
+                // 注册成功，提示用户
                 alert('注册成功！');
-                window.location.href = 'index.html';
                 
-                // 恢复按钮状态
+                // 自动跳转到首页
+                window.location.href = 'index.html';
+            } catch (error) {
+                console.error('注册过程中发生异常:', error);
+                console.error('异常类型:', error.name);
+                console.error('异常消息:', error.message);
+                console.error('异常堆栈:', error.stack);
+                alert('注册失败，请稍后重试。\n\n错误详情：' + error.message);
                 registerBtn.textContent = originalText;
                 registerBtn.disabled = false;
                 registerBtn.classList.remove('btn-loading');
-            }, 800);
+            }
             
             return false;
         }
@@ -301,22 +384,19 @@
                 if (!username) {
                     errorElement.textContent = '用户名不能为空';
                 } else {
-                    const users = JSON.parse(localStorage.getItem('users') || '{}');
-                    if (users[username]) {
-                        errorElement.textContent = '用户名已存在';
-                    } else {
-                        errorElement.textContent = '';
-                    }
+                    errorElement.textContent = '';
                 }
             });
             
-            // 手机号/邮箱验证
+            // 邮箱验证
             contactInput.addEventListener('blur', function() {
                 const contact = this.value.trim();
                 const errorElement = document.getElementById('contactError');
                 
                 if (!contact) {
-                    errorElement.textContent = '手机号/邮箱不能为空';
+                    errorElement.textContent = '邮箱不能为空';
+                } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact)) {
+                    errorElement.textContent = '请输入有效的邮箱地址';
                 } else {
                     errorElement.textContent = '';
                 }
