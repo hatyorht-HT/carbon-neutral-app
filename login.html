@@ -108,40 +108,11 @@
             text-decoration: none;
         }
         
-        .third-party-login {
+        .login-hint {
+            font-size: 12px;
+            color: #999;
+            margin-top: 8px;
             text-align: center;
-            margin: 32px 0;
-        }
-        
-        .third-party-login .divider {
-            display: flex;
-            align-items: center;
-            margin-bottom: 24px;
-        }
-        
-        .third-party-login .divider::before,
-        .third-party-login .divider::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background-color: #e0e0e0;
-        }
-        
-        .third-party-login .divider span {
-            padding: 0 16px;
-            font-size: 14px;
-            color: #666;
-        }
-        
-        .third-party-icons {
-            display: flex;
-            justify-content: center;
-            gap: 32px;
-        }
-        
-        .third-party-icon {
-            font-size: 32px;
-            cursor: pointer;
         }
         
         .footer {
@@ -169,10 +140,10 @@
         
         <!-- 登录表单卡片 -->
         <div class="login-form">
-            <form onsubmit="return login()">
+            <form onsubmit="event.preventDefault(); return login();">
                 <div class="form-group">
-                    <label for="username">用户名/手机号</label>
-                    <input type="text" id="username" placeholder="请输入手机号/学号">
+                    <label for="email">邮箱</label>
+                    <input type="email" id="email" placeholder="请输入邮箱">
                 </div>
                 
                 <div class="form-group">
@@ -182,22 +153,13 @@
                 
                 <button type="submit" class="login-btn">登录</button>
                 
+                <div class="login-hint">请使用注册时填写的邮箱登录</div>
+                
                 <div class="form-links">
                     <a href="register.html">注册账号</a>
                     <a href="#" onclick="alert('密码重置功能开发中'); return false;">忘记密码？</a>
                 </div>
             </form>
-        </div>
-        
-        <!-- 第三方登录 -->
-        <div class="third-party-login">
-            <div class="divider">
-                <span>其他登录方式</span>
-            </div>
-            <div class="third-party-icons">
-                <div class="third-party-icon" onclick="alert('第三方登录开发中')">💬</div>
-                <div class="third-party-icon" onclick="alert('第三方登录开发中')">🐧</div>
-            </div>
         </div>
         
         <!-- 页脚 -->
@@ -210,31 +172,14 @@
     </div>
     
     <script>
-        // 数据迁移：初始化默认用户
-        function initDefaultUser() {
-            if (!localStorage.getItem('users')) {
-                const defaultUsers = {
-                    '林小绿': {
-                        password: '123456',
-                        points: 2450,
-                        joinedDate: '2023年1月',
-                        totalDonated: 124,
-                        totalSaved: 1240,
-                        posts: []
-                    }
-                };
-                localStorage.setItem('users', JSON.stringify(defaultUsers));
-            }
-        }
-        
         // 登录逻辑
-        function login() {
-            const username = document.getElementById('username').value.trim();
+        async function login() {
+            const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
             const loginBtn = document.querySelector('.login-btn');
             
-            if (!username || !password) {
-                alert('请输入用户名/密码');
+            if (!email || !password) {
+                alert('请输入邮箱和密码');
                 return false;
             }
             
@@ -244,51 +189,66 @@
             loginBtn.disabled = true;
             loginBtn.classList.add('btn-loading');
             
-            // 初始化默认用户
-            initDefaultUser();
-            
-            // 模拟登录延迟
-            setTimeout(function() {
-                try {
-                    // 从 localStorage 读取用户数据
-                    const users = JSON.parse(localStorage.getItem('users') || '{}');
-                    
-                    // 验证用户
-                    const user = users[username];
-                    if (!user) {
-                        alert('用户名不存在');
-                        return;
-                    }
-                    
-                    if (user.password !== password) {
-                        alert('密码错误');
-                        return;
-                    }
-                    
-                    // 存储登录状态
-                    localStorage.setItem('isLoggedIn', 'true');
-                    localStorage.setItem('currentUsername', username);
-                    
-                    alert('登录成功');
-                    window.location.href = 'index.html';
-                } catch (error) {
-                    console.error('登录失败:', error);
-                    alert('登录失败，请稍后重试');
-                } finally {
-                    // 恢复按钮状态
+            try {
+                // 使用 Supabase Auth 登录
+                const { data: authData, error: authError } = await supabaseClient.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+                
+                if (authError) {
+                    console.error('登录失败:', authError);
+                    alert('登录失败：' + authError.message);
                     loginBtn.textContent = originalText;
                     loginBtn.disabled = false;
                     loginBtn.classList.remove('btn-loading');
+                    return false;
                 }
-            }, 800);
+                
+                console.log('登录成功:', authData);
+                
+                // 从 profiles 表获取用户信息
+                const { data: profileData, error: profileError } = await supabaseClient
+                    .from('profiles')
+                    .select('*')
+                    .eq('phone_email', email)
+                    .single();
+                
+                if (profileError) {
+                    console.error('获取用户资料失败:', profileError);
+                    alert('登录成功，但获取用户资料失败：' + profileError.message);
+                    // 即使获取资料失败，仍然继续跳转
+                } else {
+                    console.log('用户资料获取成功:', profileData);
+                    
+                    // 存储登录状态和用户信息到 localStorage
+                    localStorage.setItem('isLoggedIn', 'true');
+                    localStorage.setItem('currentUsername', profileData.username);
+                    localStorage.setItem('currentUserEmail', email);
+                    localStorage.setItem('currentUserPoints', profileData.points);
+                    localStorage.setItem('currentUserJoinedDate', profileData.joinedDate);
+                    localStorage.setItem('currentUserTotalDonated', profileData.totalDonated);
+                    localStorage.setItem('currentUserTotalSaved', profileData.totalSaved);
+                }
+                
+                // 登录成功，提示用户
+                alert('登录成功！');
+                
+                // 自动跳转到首页
+                window.location.href = 'index.html';
+            } catch (error) {
+                console.error('登录过程中发生异常:', error);
+                console.error('异常类型:', error.name);
+                console.error('异常消息:', error.message);
+                console.error('异常堆栈:', error.stack);
+                alert('登录失败，请稍后重试。\n\n错误详情：' + error.message);
+                loginBtn.textContent = originalText;
+                loginBtn.disabled = false;
+                loginBtn.classList.remove('btn-loading');
+            }
             
             return false;
         }
-        
-        // 页面加载时初始化默认用户
-        window.onload = function() {
-            initDefaultUser();
-        };
-        </script>
+    </script>
 </body>
 </html>
