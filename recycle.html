@@ -7,6 +7,128 @@
     <title>发布闲置 - 碳中和校园</title>
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabaseClient.js"></script>
+    <style>
+        .photo-upload {
+            margin-bottom: 24px;
+        }
+        
+        .photo-preview {
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+            backdrop-filter: blur(10px);
+            border: 2px dashed #4caf50;
+            border-radius: 16px;
+            padding: 48px 16px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .photo-preview.dragover {
+            border-color: #2e7d32;
+            background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+            box-shadow: 0 4px 16px rgba(76, 175, 80, 0.2);
+        }
+        
+        .photo-preview.loading {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+        
+        .loading-spinner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(76, 175, 80, 0.2);
+            border-top: 4px solid #4caf50;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+        
+        .photo-preview:hover {
+            border-color: #2e7d32;
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.15);
+        }
+        
+        .preview-content {
+            position: relative;
+        }
+        
+        .image-container {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .upload-icon {
+            color: #4caf50;
+            margin-bottom: 16px;
+        }
+        
+        .photo-preview.has-image {
+            border-style: solid;
+            padding: 16px;
+        }
+        
+        .photo-preview.has-image .image-container {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .photo-preview.has-image img {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .delete-btn {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background-color: #f44336;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: background-color 0.2s ease;
+        }
+        
+        .delete-btn:hover {
+            background-color: #d32f2f;
+        }
+        
+        .upload-btn {
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.2s ease;
+        }
+        
+        .upload-btn:hover {
+            background-color: #2e7d32;
+            transform: translateY(-2px);
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -22,11 +144,17 @@
         <div id="publishForm" style="display: none;">
             <!-- 添加照片区域 -->
             <div class="photo-upload">
-                <div id="photoPreview" style="font-size: 48px; margin-bottom: 12px;">📷</div>
-                <h3>添加照片</h3>
-                <p style="color: #666; font-size: 14px; margin: 8px 0 16px;">上传一张清晰的物品照片</p>
-                <button class="upload-btn" onclick="document.getElementById('fileInput').click()">选择图片</button>
-                <input type="file" id="fileInput" style="display: none;" accept="image/*" onchange="previewImage(this)">
+                <div id="photoPreview" class="photo-preview">
+                    <div class="preview-content">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="upload-icon"><path d="M16 16v1a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-1"></path><path d="M8 16s-4-4-4-8a4 4 0 0 1 8 0c0 4-4 8-4 8"></path><path d="M12 12v6"></path><path d="m15 15-3-3-3 3"></path></svg>
+                        <h3>添加照片</h3>
+                        <p style="color: #666; font-size: 14px; margin: 8px 0 16px;">点击或拖拽图片至此</p>
+                        <p style="color: #999; font-size: 12px; margin-bottom: 24px;">上传一张清晰的物品照片</p>
+                        <button class="upload-btn" onclick="event.stopPropagation(); document.getElementById('imageUpload').click()">选择图片</button>
+                    </div>
+                    <input type="file" id="imageUpload" accept="image/*" style="display: none;">
+                    <span id="fileName">未选择文件</span>
+                </div>
             </div>
             
             <!-- 表单 -->
@@ -43,12 +171,8 @@
                     <option value="other">其他</option>
                 </select>
                 
-                <h3>新旧程度</h3>
-                <div class="radio-group">
-                    <div class="radio-option">全新</div>
-                    <div class="radio-option active">九成新</div>
-                    <div class="radio-option">一般</div>
-                </div>
+                <h3>产品状况</h3>
+                <input type="text" id="itemCondition" placeholder="请描述物品的新旧程度和使用状况，例如：九成新，无划痕">
                 
                 <h3>价格（元）</h3>
                 <input type="number" id="itemPrice" placeholder="例如 20" min="0" step="1" required>
@@ -74,36 +198,6 @@
         </div>
         
         <script>
-            function submitForm() {
-                const itemName = document.getElementById('itemName').value;
-                const itemCategory = document.getElementById('itemCategory').value;
-                
-                if (!itemName) {
-                    alert('请输入物品名称');
-                    return;
-                }
-                
-                if (!itemCategory) {
-                    alert('请选择类别');
-                    return;
-                }
-                
-                alert('发布成功！您的闲置已提交审核');
-                
-                // 清空表单
-                document.getElementById('fileInput').value = '';
-                document.getElementById('itemName').value = '';
-                document.getElementById('itemCategory').value = '';
-                
-                // 重置照片预览
-                document.getElementById('photoPreview').innerHTML = '📷';
-                
-                // 重置新旧程度为九成新
-                const radioOptions = document.querySelectorAll('.radio-option');
-                radioOptions.forEach(opt => opt.classList.remove('active'));
-                radioOptions[1].classList.add('active');
-            }
-            
             // 检查登录状态
             function checkLoginStatus() {
                 const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
@@ -131,41 +225,150 @@
         function previewImage(input) {
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
-                const preview = document.getElementById('photoPreview');
+                const photoPreview = document.getElementById('photoPreview');
+                const previewContent = photoPreview.querySelector('.preview-content');
+                
+                // 显示加载动画
+                photoPreview.classList.add('loading');
+                const loadingSpinner = document.createElement('div');
+                loadingSpinner.className = 'loading-spinner';
+                photoPreview.appendChild(loadingSpinner);
                 
                 reader.onload = function(e) {
-                    preview.innerHTML = `<img src="${e.target.result}" style="max-width: 100%; max-height: 200px; object-fit: cover; border-radius: 8px;">`;
-                }
+                    // 移除加载动画
+                    setTimeout(() => {
+                        photoPreview.classList.remove('loading');
+                        if (loadingSpinner) {
+                            loadingSpinner.remove();
+                        }
+                        
+                        // 创建专门放图片的容器
+                        let imageContainer = previewContent.querySelector('.image-container');
+                        if (!imageContainer) {
+                            imageContainer = document.createElement('div');
+                            imageContainer.className = 'image-container';
+                            previewContent.appendChild(imageContainer);
+                        }
+                        
+                        // 清空图片容器
+                        imageContainer.innerHTML = '';
+                        
+                        // 创建图片元素
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.alt = '物品照片';
+                        
+                        // 创建删除按钮
+                        const deleteBtn = document.createElement('button');
+                        deleteBtn.className = 'delete-btn';
+                        deleteBtn.innerHTML = '×';
+                        deleteBtn.onclick = function() {
+                            // 重置文件输入
+                            input.value = '';
+                            
+                            // 更新文件名显示
+                            document.getElementById('fileName').textContent = '未选择文件';
+                            
+                            // 清空图片容器
+                            imageContainer.innerHTML = '';
+                            
+                            // 移除 has-image 类
+                            photoPreview.classList.remove('has-image');
+                        };
+                        
+                        // 添加到图片容器
+                        imageContainer.appendChild(img);
+                        imageContainer.appendChild(deleteBtn);
+                        
+                        // 添加 has-image 类
+                        photoPreview.classList.add('has-image');
+                    }, 800); // 模拟加载时间
+                };
                 
                 reader.readAsDataURL(input.files[0]);
             }
         }
         
-        // 表单实时验证
+        // 添加文件名显示逻辑和拖拽功能
         document.addEventListener('DOMContentLoaded', function() {
+            const fileInput = document.getElementById('imageUpload');
+            const fileNameSpan = document.getElementById('fileName');
+            const photoPreview = document.getElementById('photoPreview');
+            
+            if (fileInput && fileNameSpan) {
+                fileInput.addEventListener('change', function(e) {
+                    fileNameSpan.textContent = e.target.files[0]?.name || '未选择文件';
+                    if (e.target.files && e.target.files[0]) {
+                        previewImage(this);
+                    }
+                });
+            }
+            
+            if (photoPreview && fileInput) {
+                // 点击预览区域触发文件选择
+                photoPreview.addEventListener('click', function(e) {
+                    if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'IMG') {
+                        fileInput.click();
+                    }
+                });
+                
+                // 拖拽进入
+                photoPreview.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.classList.add('dragover');
+                });
+                
+                // 拖拽离开
+                photoPreview.addEventListener('dragleave', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.classList.remove('dragover');
+                });
+                
+                // 拖拽放下
+                photoPreview.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.classList.remove('dragover');
+                    
+                    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                        fileInput.files = e.dataTransfer.files;
+                        // 更新文件名显示
+                        document.getElementById('fileName').textContent = e.dataTransfer.files[0].name;
+                        previewImage(fileInput);
+                    }
+                });
+            }
+            
+            // 表单实时验证
             const itemNameInput = document.getElementById('itemName');
             const itemCategorySelect = document.getElementById('itemCategory');
             const radioOptions = document.querySelectorAll('.radio-option');
             
             // 物品名称验证
-            itemNameInput.addEventListener('blur', function() {
-                const errorId = 'itemNameError';
-                if (!this.value.trim()) {
-                    showError(this, errorId, '物品名称不能为空');
-                } else {
-                    hideError(errorId);
-                }
-            });
+            if (itemNameInput) {
+                itemNameInput.addEventListener('blur', function() {
+                    const errorId = 'itemNameError';
+                    if (!this.value.trim()) {
+                        showError(this, errorId, '物品名称不能为空');
+                    } else {
+                        hideError(errorId);
+                    }
+                });
+            }
             
             // 类别选择验证
-            itemCategorySelect.addEventListener('change', function() {
-                const errorId = 'itemCategoryError';
-                if (!this.value) {
-                    showError(this, errorId, '请选择类别');
-                } else {
-                    hideError(errorId);
-                }
-            });
+            if (itemCategorySelect) {
+                itemCategorySelect.addEventListener('change', function() {
+                    const errorId = 'itemCategoryError';
+                    if (!this.value) {
+                        showError(this, errorId, '请选择类别');
+                    } else {
+                        hideError(errorId);
+                    }
+                });
+            }
             
             // 新旧程度选择
             radioOptions.forEach(option => {
@@ -194,137 +397,184 @@
             }
         }
         
-        // 提交表单
-        function submitForm() {
-            const itemName = document.getElementById('itemName').value;
-            const itemCategory = document.getElementById('itemCategory').value;
-            const itemPrice = parseFloat(document.getElementById('itemPrice').value) || 0;
+        // 添加按钮加载和成功状态样式
+        const style = document.createElement('style');
+        style.textContent = `
+            .btn-loading {
+                position: relative;
+                pointer-events: none;
+            }
+            
+            .btn-loading::after {
+                content: '';
+                position: absolute;
+                top: 50%;
+                right: 16px;
+                width: 16px;
+                height: 16px;
+                margin-top: -8px;
+                border: 2px solid rgba(255, 255, 255, 0.5);
+                border-top: 2px solid white;
+                border-radius: 50%;
+                animation: spin 1s linear infinite;
+            }
+            
+            .btn-success {
+                background-color: #22c55e !important;
+                position: relative;
+            }
+            
+            .btn-success::after {
+                content: '✓';
+                position: absolute;
+                top: 50%;
+                right: 16px;
+                transform: translateY(-50%);
+                font-size: 16px;
+                font-weight: bold;
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // 增强第一个 submitForm 函数
+        async function submitForm() {
+            console.log('submitForm 函数开始执行');
+            console.log('DOM 加载状态:', document.readyState);
+            
+            const itemName = document.getElementById('itemName')?.value;
+            const itemCategory = document.getElementById('itemCategory')?.value;
+            const itemCondition = document.getElementById('itemCondition')?.value;
+            const itemPrice = parseFloat(document.getElementById('itemPrice')?.value) || 0;
+            
+            // 获取文件输入框
+            const fileInput = document.getElementById('imageUpload');
+            console.log('获取 fileInput:', fileInput);
+            console.log('fileInput 是否存在于 DOM 中:', fileInput && document.body.contains(fileInput));
+            
             const submitBtn = document.querySelector('.btn');
+            console.log('获取 submitBtn:', submitBtn);
             
-            // 验证
-            let isValid = true;
+            if (!fileInput || !document.body.contains(fileInput)) {
+                console.warn('未找到文件上传控件或控件不在 DOM 中，将视为未选择图片');
+            }
             
-            if (!itemName.trim()) {
-                showError(document.getElementById('itemName'), 'itemNameError', '物品名称不能为空');
-                isValid = false;
+            if (!itemName) {
+                alert('请输入物品名称');
+                return;
             }
             
             if (!itemCategory) {
-                showError(document.getElementById('itemCategory'), 'itemCategoryError', '请选择类别');
-                isValid = false;
-            }
-            
-            if (itemPrice < 0) {
-                showError(document.getElementById('itemPrice'), 'itemPriceError', '价格不能为负数');
-                isValid = false;
-            }
-            
-            if (!isValid) {
+                alert('请选择类别');
                 return;
             }
             
             // 显示加载状态
-            const originalText = submitBtn.textContent;
-            submitBtn.textContent = '发布中...';
-            submitBtn.disabled = true;
-            submitBtn.classList.add('btn-loading');
+            if (submitBtn) {
+                submitBtn.textContent = '发布中...';
+                submitBtn.disabled = true;
+                submitBtn.classList.add('btn-loading');
+            }
             
             try {
-                // 获取当前用户名
-                const username = getCurrentUser() || '林小绿';
+                // 获取用户信息
+                const username = localStorage.getItem('currentUsername');
+                const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
                 
-                // 构造物品对象
-                const item = {
-                    id: Date.now(),
+                if (!isLoggedIn || !username) {
+                    alert('请先登录');
+                    if (submitBtn) {
+                        submitBtn.textContent = '立即发布';
+                        submitBtn.disabled = false;
+                        submitBtn.classList.remove('btn-loading');
+                    }
+                    return;
+                }
+                
+                // ----- 图片上传开始 -----
+                let imageUrl = null;
+                
+                if (fileInput && fileInput.files && fileInput.files.length > 0) {
+                    const file = fileInput.files[0];
+                    const fileExt = file.name.split('.').pop();
+                    const fileName = `${Date.now()}_${Math.random().toString(36).substring(2)}.${fileExt}`;
+                    
+                    // 步骤 B：上传到 item-images 存储桶
+                    const { error: uploadError } = await supabaseClient
+                        .storage
+                        .from('item-images')
+                        .upload(fileName, file);
+
+                    if (uploadError) {
+                        console.error('图片上传失败', uploadError);
+                        throw new Error('图片上传失败，请稍后重试');
+                    }
+                    
+                    // 步骤 C：获取完整的公共 URL
+                    const { data: publicUrlData } = supabaseClient
+                        .storage
+                        .from('item-images')
+                        .getPublicUrl(fileName);
+                    
+                    imageUrl = publicUrlData.publicUrl;
+                    console.log('图片上传成功，完整 URL:', imageUrl);
+                } else {
+                    console.log('未选择图片，image_url 将为 null');
+                }
+                // ----- 图片上传结束 -----
+                
+                // 准备提交数据
+                const itemData = {
                     name: itemName,
-                    category: getCategoryName(itemCategory),
-                    condition: getCondition(),
+                    category: itemCategory,
+                    condition: itemCondition,
                     price: itemPrice,
-                    publisher: username,
-                    time: '刚刚',
-                    image: '📷' // 添加默认图片占位符
+                    seller: username,
+                    image_url: imageUrl,
+                    created_at: new Date().toISOString()
                 };
                 
-                // 存入 localStorage（暂时保留以便其他页面使用）
-                const usedItems = JSON.parse(localStorage.getItem('usedItems') || '[]');
-                usedItems.unshift(item); // 添加到数组开头
-                localStorage.setItem('usedItems', JSON.stringify(usedItems));
+                console.log('准备插入数据库的数据:', itemData);
                 
-                // 增加发布者积分
-                const pointsToAdd = 10;
-                const success = addUserPoints(username, pointsToAdd);
+                // 步骤 D：插入数据库
+                const { data, error } = await supabaseClient
+                    .from('used_items')
+                    .insert([itemData]);
                 
-                if (!success) {
-                    console.error('更新积分失败');
-                    throw new Error('更新积分失败');
+                if (error) {
+                    console.error('提交失败:', error);
+                    alert('发布失败，请稍后重试');
+                    
+                    // 恢复按钮状态
+                    if (submitBtn) {
+                        submitBtn.textContent = '立即发布';
+                        submitBtn.disabled = false;
+                        submitBtn.classList.remove('btn-loading');
+                    }
+                    return;
                 }
                 
-                alert('发布成功！您的闲置已提交审核，获得10积分奖励');
+                // 显示成功状态
+                if (submitBtn) {
+                    submitBtn.textContent = '发布成功！';
+                    submitBtn.classList.remove('btn-loading');
+                    submitBtn.classList.add('btn-success');
+                }
                 
-                // 清空表单
-                document.getElementById('fileInput').value = '';
-                document.getElementById('itemName').value = '';
-                document.getElementById('itemCategory').value = '';
-                document.getElementById('itemPrice').value = '';
+                // 延迟后跳转到首页
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1500);
                 
-                // 重置照片预览
-                document.getElementById('photoPreview').innerHTML = '📷';
-                
-                // 重置新旧程度为九成新
-                const radioOptions = document.querySelectorAll('.radio-option');
-                radioOptions.forEach(opt => opt.classList.remove('active'));
-                radioOptions[1].classList.add('active');
             } catch (error) {
-                console.error('发布失败:', error);
-                alert('发布失败，请稍后重试');
-            } finally {
+                console.error('提交异常:', error);
+                alert(error.message || '发布失败，请稍后重试');
+                
                 // 恢复按钮状态
-                submitBtn.textContent = originalText;
-                submitBtn.disabled = false;
-                submitBtn.classList.remove('btn-loading');
-            }
-        }
-        
-        // 获取类别名称
-        function getCategoryName(categoryValue) {
-            switch(categoryValue) {
-                case 'digital':
-                    return '数码';
-                case 'clothing':
-                    return '衣物';
-                case 'books':
-                    return '书籍';
-                case 'other':
-                    return '其他';
-                default:
-                    return '其他';
-            }
-        }
-        
-        // 获取新旧程度
-        function getCondition() {
-            const radioOptions = document.querySelectorAll('.radio-option');
-            for (let i = 0; i < radioOptions.length; i++) {
-                if (radioOptions[i].classList.contains('active')) {
-                    return radioOptions[i].textContent;
+                if (submitBtn) {
+                    submitBtn.textContent = '立即发布';
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('btn-loading');
                 }
-            }
-            return '九成新'; // 默认值
-        }
-        
-        // 根据类别计算积分
-        function calculatePoints(categoryValue) {
-            switch(categoryValue) {
-                case 'digital':
-                    return 20;
-                case 'clothing':
-                    return 10;
-                case 'books':
-                    return 5;
-                case 'other':
-                    return 15;
-                default:
-                    return 15;
             }
         }
     </script>

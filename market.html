@@ -246,6 +246,9 @@
                     marketGrid.style.display = 'grid';
                     emptyMarket.style.display = 'none';
                     
+                    // 调试：查看获取到的数据
+                    console.log('从数据库获取到的 usedItems:', usedItems);
+                    
                     // 清空网格
                     marketGrid.innerHTML = '';
                     
@@ -257,8 +260,16 @@
                         
                         // 处理图片显示
                         let imageHtml = '📷';
-                        if (item.image_url) {
-                            imageHtml = `<img src="${item.image_url}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;" onerror="this.src='placeholder.png'; this.onerror=null;">`;
+                        if (item.image_url && item.image_url !== 'NULL' && item.image_url !== null) {
+                            // 检查是否为完整 URL，如果不是则构建完整 URL
+                            let imageSrc = item.image_url;
+                            if (!imageSrc.startsWith('http')) {
+                                // 构建完整的 Supabase Storage URL
+                                imageSrc = `https://wywegcbfylaxjbjyhptq.supabase.co/storage/v1/object/public/item-images/${imageSrc}`;
+                            }
+                            imageHtml = `<img src="${imageSrc}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;" onerror="this.src='https://placehold.co/600x400/e8f5e9/2e7d32?text=Eco+Product'; this.onerror=null;">`;
+                        } else {
+                            imageHtml = `<img src="https://placehold.co/600x400/e8f5e9/2e7d32?text=Eco+Product" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">`;
                         }
                         
                         // 格式化日期
@@ -360,8 +371,16 @@
                         
                         // 处理图片显示
                         let imageHtml = '📷';
-                        if (item.image_url) {
-                            imageHtml = `<img src="${item.image_url}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;" onerror="this.src='placeholder.png'; this.onerror=null;">`;
+                        if (item.image_url && item.image_url !== 'NULL' && item.image_url !== null) {
+                            // 检查是否为完整 URL，如果不是则构建完整 URL
+                            let imageSrc = item.image_url;
+                            if (!imageSrc.startsWith('http')) {
+                                // 构建完整的 Supabase Storage URL
+                                imageSrc = `https://wywegcbfylaxjbjyhptq.supabase.co/storage/v1/object/public/item-images/${imageSrc}`;
+                            }
+                            imageHtml = `<img src="${imageSrc}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;" onerror="this.src='https://placehold.co/600x400/e8f5e9/2e7d32?text=Eco+Product'; this.onerror=null;">`;
+                        } else {
+                            imageHtml = `<img src="https://placehold.co/600x400/e8f5e9/2e7d32?text=Eco+Product" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">`;
                         }
                         
                         // 格式化日期
@@ -424,10 +443,16 @@
             
             // 处理图片显示
             const modalImage = document.getElementById('modalImage');
-            if (item.image_url) {
-                modalImage.innerHTML = `<img src="${item.image_url}" style="width: 100%; height: 200px; object-fit: cover; border-radius: 8px;" onerror="this.src='placeholder.png'; this.onerror=null;">`;
+            if (item.image_url && item.image_url !== 'NULL' && item.image_url !== null) {
+                // 检查是否为完整 URL，如果不是则构建完整 URL
+                let imageSrc = item.image_url;
+                if (!imageSrc.startsWith('http')) {
+                    // 构建完整的 Supabase Storage URL
+                    imageSrc = `https://wywegcbfylaxjbjyhptq.supabase.co/storage/v1/object/public/item-images/${imageSrc}`;
+                }
+                modalImage.innerHTML = `<img src="${imageSrc}" style="width: 100%; height: 200px; object-fit: cover; border-radius: 8px;" onerror="this.src='https://placehold.co/600x400/e8f5e9/2e7d32?text=Eco+Product'; this.onerror=null;">`;
             } else {
-                modalImage.textContent = getCategoryIcon(item.category || '其他');
+                modalImage.innerHTML = `<img src="https://placehold.co/600x400/e8f5e9/2e7d32?text=Eco+Product" style="width: 100%; height: 200px; object-fit: cover; border-radius: 8px;">`;
             }
             
             document.getElementById('modalTitle').textContent = item.name || '未知';
@@ -438,8 +463,8 @@
             if (item.category) {
                 detailContent += `<p>类别：${item.category}</p>`;
             }
-            if (item.description) {
-                detailContent += `<p>描述：${item.description}</p>`;
+            if (item.condition) {
+                detailContent += `<p>描述：${item.condition}</p>`;
             }
             if (item.seller) {
                 detailContent += `<p>发布者：${item.seller}</p>`;
