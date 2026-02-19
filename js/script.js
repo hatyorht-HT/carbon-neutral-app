@@ -137,3 +137,98 @@ function initProfilePage() {
 
 // 页面加载完成后初始化
 document.addEventListener('DOMContentLoaded', initPage);
+
+// 轮播功能
+document.addEventListener('DOMContentLoaded', function() {
+    const wrapper = document.getElementById('carouselWrapper');
+    const dots = document.querySelectorAll('.dot');
+    const slides = document.querySelectorAll('.carousel-slide');
+    let currentIndex = 0;
+    let slideInterval;
+    let autoPlayDelay = 3000; // 3秒
+    let isPaused = false;
+
+    // 切换到指定索引
+    function goToSlide(index) {
+        if (index < 0) index = slides.length - 1;
+        if (index >= slides.length) index = 0;
+        wrapper.style.transform = `translateX(-${index * 100}%)`;
+        dots.forEach((dot, i) => {
+            dot.classList.toggle('active', i === index);
+        });
+        currentIndex = index;
+    }
+
+    // 下一张
+    function nextSlide() {
+        goToSlide(currentIndex + 1);
+    }
+
+    // 上一张
+    function prevSlide() {
+        goToSlide(currentIndex - 1);
+    }
+
+    // 开始自动播放
+    function startAutoPlay() {
+        if (slideInterval) clearInterval(slideInterval);
+        slideInterval = setInterval(() => {
+            if (!isPaused) {
+                nextSlide();
+            }
+        }, autoPlayDelay);
+    }
+
+    // 暂停自动播放（用户手动操作时）
+    function pauseAutoPlay() {
+        isPaused = true;
+        // 5秒后恢复
+        setTimeout(() => {
+            isPaused = false;
+        }, 5000);
+    }
+
+    // 绑定触摸事件（可选简单监听）
+    let touchStartX = 0;
+    if (wrapper) {
+        wrapper.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+            pauseAutoPlay();
+        });
+
+        wrapper.addEventListener('touchend', (e) => {
+            const touchEndX = e.changedTouches[0].clientX;
+            const diff = touchEndX - touchStartX;
+            if (Math.abs(diff) > 50) { // 滑动阈值
+                if (diff > 0) {
+                    prevSlide(); // 右滑显示上一张
+                } else {
+                    nextSlide(); // 左滑显示下一张
+                }
+            }
+        });
+    }
+
+    // 点击指示点切换
+    dots.forEach((dot, index) => {
+        dot.addEventListener('click', () => {
+            goToSlide(index);
+            pauseAutoPlay();
+        });
+    });
+
+    // 初始化
+    if (wrapper && slides.length > 0) {
+        goToSlide(0);
+        startAutoPlay();
+
+        // 可选：当页面隐藏时停止自动播放，节省资源
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                clearInterval(slideInterval);
+            } else {
+                startAutoPlay();
+            }
+        });
+    }
+});

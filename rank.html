@@ -21,26 +21,26 @@
             </div>
             
             <!-- 我的排名卡片 -->
-            <div class="card" style="margin: 16px 0; cursor: pointer;" onclick="alert('我的减碳详情')">
+            <div class="my-rank-item" onclick="alert('我的减碳详情')">
                 <div style="display: flex; align-items: center; margin-bottom: 16px;">
                     <div style="width: 60px; height: 60px; border-radius: 50%; background-color: #f0fdf4; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-right: 16px;">👤</div>
                     <div>
-                        <h3 style="margin-bottom: 4px;">我 (碳中和先锋)</h3>
-                        <div style="color: #666; font-size: 14px;">已领先 78% 的好友</div>
+                        <h3 style="margin-bottom: 4px; font-size: 16px; font-weight: 600;">我 (碳中和先锋)</h3>
+                        <div style="color: var(--text-light); font-size: 14px;">已领先 78% 的好友</div>
                     </div>
                 </div>
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <div>
-                        <div style="font-size: 14px; color: #666;">排名</div>
-                        <div style="font-size: 24px; font-weight: 700;">24</div>
+                        <div style="font-size: 14px; color: var(--text-light);">排名</div>
+                        <div style="font-size: 24px; font-weight: 700; color: var(--text-dark);">24</div>
                     </div>
                     <div style="text-align: center;">
-                        <div style="font-size: 14px; color: #666;">减排量</div>
-                        <div style="font-size: 24px; font-weight: 700; color: #2ecc71;">84.2kg</div>
+                        <div style="font-size: 14px; color: var(--text-light);">减排量</div>
+                        <div style="font-size: 24px; font-weight: 700; color: var(--primary);">84.2kg</div>
                     </div>
                     <div style="text-align: right;">
-                        <div style="font-size: 14px; color: #666;">等级</div>
-                        <div style="font-size: 18px; font-weight: 500; color: #2ecc71;">LV4</div>
+                        <div style="font-size: 14px; color: var(--text-light);">等级</div>
+                        <div style="font-size: 18px; font-weight: 500; color: var(--primary);">LV4</div>
                     </div>
                 </div>
             </div>
@@ -48,94 +48,114 @@
             <!-- 排行榜列表 -->
             <div class="rank-list" id="rankList">
                 <div class="rank-item" onclick="alert('查看用户绿色旅人的减碳详情')">
-                    <div class="rank-number top3">1</div>
-                    <div class="rank-avatar">👑</div>
-                    <div class="rank-info">
+                    <div class="rank-left">
+                        <div class="rank-number top3">1</div>
+                        <div class="rank-avatar">👑</div>
+                    </div>
+                    <div class="rank-middle">
                         <div class="rank-name">绿色旅人</div>
                         <div class="rank-level">LV8</div>
                     </div>
-                    <div class="rank-score">120.5kg</div>
+                    <div class="rank-right">120.5kg</div>
                 </div>
                 <div class="rank-item" onclick="alert('查看用户低碳达人小王的减碳详情')">
-                    <div class="rank-number top3">2</div>
-                    <div class="rank-avatar">🌟</div>
-                    <div class="rank-info">
+                    <div class="rank-left">
+                        <div class="rank-number top3">2</div>
+                        <div class="rank-avatar">🌟</div>
+                    </div>
+                    <div class="rank-middle">
                         <div class="rank-name">低碳达人小王</div>
                         <div class="rank-level">LV7</div>
                     </div>
-                    <div class="rank-score">115.2kg</div>
+                    <div class="rank-right">115.2kg</div>
                 </div>
                 <div class="rank-item" onclick="alert('查看用户森林守护者的减碳详情')">
-                    <div class="rank-number top3">3</div>
-                    <div class="rank-avatar">🌳</div>
-                    <div class="rank-info">
+                    <div class="rank-left">
+                        <div class="rank-number top3">3</div>
+                        <div class="rank-avatar">🌳</div>
+                    </div>
+                    <div class="rank-middle">
                         <div class="rank-name">森林守护者</div>
                         <div class="rank-level">LV7</div>
                     </div>
-                    <div class="rank-score">108.7kg</div>
+                    <div class="rank-right">108.7kg</div>
                 </div>
                 <div class="rank-item" onclick="alert('查看用户风能小子的减碳详情')">
-                    <div class="rank-number">4</div>
-                    <div class="rank-avatar">💨</div>
-                    <div class="rank-info">
+                    <div class="rank-left">
+                        <div class="rank-number">4</div>
+                        <div class="rank-avatar">💨</div>
+                    </div>
+                    <div class="rank-middle">
                         <div class="rank-name">风能小子</div>
                         <div class="rank-level">LV6</div>
                     </div>
-                    <div class="rank-score">99.1kg</div>
+                    <div class="rank-right">99.1kg</div>
                 </div>
                 <div class="rank-item" onclick="alert('查看用户清风徐来的减碳详情')">
-                    <div class="rank-number">5</div>
-                    <div class="rank-avatar">🌬️</div>
-                    <div class="rank-info">
+                    <div class="rank-left">
+                        <div class="rank-number">5</div>
+                        <div class="rank-avatar">🌬️</div>
+                    </div>
+                    <div class="rank-middle">
                         <div class="rank-name">清风徐来</div>
                         <div class="rank-level">LV5</div>
                     </div>
-                    <div class="rank-score">95.4kg</div>
+                    <div class="rank-right">95.4kg</div>
                 </div>
                 <div class="rank-item" onclick="alert('查看用户循环主义的减碳详情')">
-                    <div class="rank-number">6</div>
-                    <div class="rank-avatar">🔄</div>
-                    <div class="rank-info">
+                    <div class="rank-left">
+                        <div class="rank-number">6</div>
+                        <div class="rank-avatar">🔄</div>
+                    </div>
+                    <div class="rank-middle">
                         <div class="rank-name">循环主义</div>
                         <div class="rank-level">LV5</div>
                     </div>
-                    <div class="rank-score">92.8kg</div>
+                    <div class="rank-right">92.8kg</div>
                 </div>
                 <div class="rank-item" onclick="alert('查看用户绿色生活的减碳详情')">
-                    <div class="rank-number">7</div>
-                    <div class="rank-avatar">🌱</div>
-                    <div class="rank-info">
+                    <div class="rank-left">
+                        <div class="rank-number">7</div>
+                        <div class="rank-avatar">🌱</div>
+                    </div>
+                    <div class="rank-middle">
                         <div class="rank-name">绿色生活</div>
                         <div class="rank-level">LV4</div>
                     </div>
-                    <div class="rank-score">88.3kg</div>
+                    <div class="rank-right">88.3kg</div>
                 </div>
                 <div class="rank-item" onclick="alert('查看用户碳中和先锋的减碳详情')">
-                    <div class="rank-number">8</div>
-                    <div class="rank-avatar">⚡</div>
-                    <div class="rank-info">
+                    <div class="rank-left">
+                        <div class="rank-number">8</div>
+                        <div class="rank-avatar">⚡</div>
+                    </div>
+                    <div class="rank-middle">
                         <div class="rank-name">碳中和先锋</div>
                         <div class="rank-level">LV4</div>
                     </div>
-                    <div class="rank-score">86.2kg</div>
+                    <div class="rank-right">86.2kg</div>
                 </div>
                 <div class="rank-item" onclick="alert('查看用户植树匠人的减碳详情')">
-                    <div class="rank-number">9</div>
-                    <div class="rank-avatar">🌲</div>
-                    <div class="rank-info">
+                    <div class="rank-left">
+                        <div class="rank-number">9</div>
+                        <div class="rank-avatar">🌲</div>
+                    </div>
+                    <div class="rank-middle">
                         <div class="rank-name">植树匠人</div>
                         <div class="rank-level">LV3</div>
                     </div>
-                    <div class="rank-score">85.0kg</div>
+                    <div class="rank-right">85.0kg</div>
                 </div>
                 <div class="rank-item" onclick="alert('查看用户小明的减碳详情')">
-                    <div class="rank-number">10</div>
-                    <div class="rank-avatar">👦</div>
-                    <div class="rank-info">
+                    <div class="rank-left">
+                        <div class="rank-number">10</div>
+                        <div class="rank-avatar">👦</div>
+                    </div>
+                    <div class="rank-middle">
                         <div class="rank-name">小明</div>
                         <div class="rank-level">LV3</div>
                     </div>
-                    <div class="rank-score">84.9kg</div>
+                    <div class="rank-right">84.9kg</div>
                 </div>
             </div>
         </div>
@@ -145,7 +165,7 @@
             <span style="font-size: 48px;">🏆</span>
             <p style="font-size: 18px; margin: 20px 0;">登录后查看你的减碳排名</p>
             <p style="color: #666; margin-bottom: 32px;">加入我们，一起为地球减碳</p>
-            <button style="background-color: #2ecc71; color: white; border: none; border-radius: 8px; padding: 14px 32px; font-size: 16px; font-weight: 500; cursor: pointer; min-height: 44px; min-width: 120px;" onclick="window.location.href='login.html'">立即登录</button>
+            <button style="background-color: var(--primary); color: white; border: none; border-radius: 8px; padding: 12px 32px; font-size: 16px; font-weight: 500; cursor: pointer; height: 48px; min-width: 120px; transition: background-color 0.2s;" onclick="window.location.href='login.html'">立即登录</button>
         </div>
 
         
@@ -167,94 +187,114 @@
                 const rankList = document.getElementById('rankList');
                 rankList.innerHTML = `
                     <div class="rank-item" onclick="alert('查看用户绿色旅人的减碳详情')">
-                        <div class="rank-number top3">1</div>
-                        <div class="rank-avatar">👑</div>
-                        <div class="rank-info">
+                        <div class="rank-left">
+                            <div class="rank-number top3">1</div>
+                            <div class="rank-avatar">👑</div>
+                        </div>
+                        <div class="rank-middle">
                             <div class="rank-name">绿色旅人</div>
                             <div class="rank-level">LV8</div>
                         </div>
-                        <div class="rank-score">120.5kg</div>
+                        <div class="rank-right">120.5kg</div>
                     </div>
                     <div class="rank-item" onclick="alert('查看用户低碳达人小王的减碳详情')">
-                        <div class="rank-number top3">2</div>
-                        <div class="rank-avatar">🌟</div>
-                        <div class="rank-info">
+                        <div class="rank-left">
+                            <div class="rank-number top3">2</div>
+                            <div class="rank-avatar">🌟</div>
+                        </div>
+                        <div class="rank-middle">
                             <div class="rank-name">低碳达人小王</div>
                             <div class="rank-level">LV7</div>
                         </div>
-                        <div class="rank-score">115.2kg</div>
+                        <div class="rank-right">115.2kg</div>
                     </div>
                     <div class="rank-item" onclick="alert('查看用户森林守护者的减碳详情')">
-                        <div class="rank-number top3">3</div>
-                        <div class="rank-avatar">🌳</div>
-                        <div class="rank-info">
+                        <div class="rank-left">
+                            <div class="rank-number top3">3</div>
+                            <div class="rank-avatar">🌳</div>
+                        </div>
+                        <div class="rank-middle">
                             <div class="rank-name">森林守护者</div>
                             <div class="rank-level">LV7</div>
                         </div>
-                        <div class="rank-score">108.7kg</div>
+                        <div class="rank-right">108.7kg</div>
                     </div>
                     <div class="rank-item" onclick="alert('查看用户风能小子的减碳详情')">
-                        <div class="rank-number">4</div>
-                        <div class="rank-avatar">💨</div>
-                        <div class="rank-info">
+                        <div class="rank-left">
+                            <div class="rank-number">4</div>
+                            <div class="rank-avatar">💨</div>
+                        </div>
+                        <div class="rank-middle">
                             <div class="rank-name">风能小子</div>
                             <div class="rank-level">LV6</div>
                         </div>
-                        <div class="rank-score">99.1kg</div>
+                        <div class="rank-right">99.1kg</div>
                     </div>
                     <div class="rank-item" onclick="alert('查看用户清风徐来的减碳详情')">
-                        <div class="rank-number">5</div>
-                        <div class="rank-avatar">🌬️</div>
-                        <div class="rank-info">
+                        <div class="rank-left">
+                            <div class="rank-number">5</div>
+                            <div class="rank-avatar">🌬️</div>
+                        </div>
+                        <div class="rank-middle">
                             <div class="rank-name">清风徐来</div>
                             <div class="rank-level">LV5</div>
                         </div>
-                        <div class="rank-score">95.4kg</div>
+                        <div class="rank-right">95.4kg</div>
                     </div>
                     <div class="rank-item" onclick="alert('查看用户循环主义的减碳详情')">
-                        <div class="rank-number">6</div>
-                        <div class="rank-avatar">🔄</div>
-                        <div class="rank-info">
+                        <div class="rank-left">
+                            <div class="rank-number">6</div>
+                            <div class="rank-avatar">🔄</div>
+                        </div>
+                        <div class="rank-middle">
                             <div class="rank-name">循环主义</div>
                             <div class="rank-level">LV5</div>
                         </div>
-                        <div class="rank-score">92.8kg</div>
+                        <div class="rank-right">92.8kg</div>
                     </div>
                     <div class="rank-item" onclick="alert('查看用户绿色生活的减碳详情')">
-                        <div class="rank-number">7</div>
-                        <div class="rank-avatar">🌱</div>
-                        <div class="rank-info">
+                        <div class="rank-left">
+                            <div class="rank-number">7</div>
+                            <div class="rank-avatar">🌱</div>
+                        </div>
+                        <div class="rank-middle">
                             <div class="rank-name">绿色生活</div>
                             <div class="rank-level">LV4</div>
                         </div>
-                        <div class="rank-score">88.3kg</div>
+                        <div class="rank-right">88.3kg</div>
                     </div>
                     <div class="rank-item" onclick="alert('查看用户碳中和先锋的减碳详情')">
-                        <div class="rank-number">8</div>
-                        <div class="rank-avatar">⚡</div>
-                        <div class="rank-info">
+                        <div class="rank-left">
+                            <div class="rank-number">8</div>
+                            <div class="rank-avatar">⚡</div>
+                        </div>
+                        <div class="rank-middle">
                             <div class="rank-name">碳中和先锋</div>
                             <div class="rank-level">LV4</div>
                         </div>
-                        <div class="rank-score">86.2kg</div>
+                        <div class="rank-right">86.2kg</div>
                     </div>
                     <div class="rank-item" onclick="alert('查看用户植树匠人的减碳详情')">
-                        <div class="rank-number">9</div>
-                        <div class="rank-avatar">🌲</div>
-                        <div class="rank-info">
+                        <div class="rank-left">
+                            <div class="rank-number">9</div>
+                            <div class="rank-avatar">🌲</div>
+                        </div>
+                        <div class="rank-middle">
                             <div class="rank-name">植树匠人</div>
                             <div class="rank-level">LV3</div>
                         </div>
-                        <div class="rank-score">85.0kg</div>
+                        <div class="rank-right">85.0kg</div>
                     </div>
                     <div class="rank-item" onclick="alert('查看用户小明的减碳详情')">
-                        <div class="rank-number">10</div>
-                        <div class="rank-avatar">👦</div>
-                        <div class="rank-info">
+                        <div class="rank-left">
+                            <div class="rank-number">10</div>
+                            <div class="rank-avatar">👦</div>
+                        </div>
+                        <div class="rank-middle">
                             <div class="rank-name">小明</div>
                             <div class="rank-level">LV3</div>
                         </div>
-                        <div class="rank-score">84.9kg</div>
+                        <div class="rank-right">84.9kg</div>
                     </div>
                 `;
             }
@@ -263,94 +303,114 @@
                 const rankList = document.getElementById('rankList');
                 rankList.innerHTML = `
                     <div class="rank-item" onclick="alert('查看用户校园先锋的减碳详情')">
-                        <div class="rank-number top3">1</div>
-                        <div class="rank-avatar">🏫</div>
-                        <div class="rank-info">
+                        <div class="rank-left">
+                            <div class="rank-number top3">1</div>
+                            <div class="rank-avatar">🏫</div>
+                        </div>
+                        <div class="rank-middle">
                             <div class="rank-name">校园先锋</div>
                             <div class="rank-level">LV9</div>
                         </div>
-                        <div class="rank-score">120kg</div>
+                        <div class="rank-right">120kg</div>
                     </div>
                     <div class="rank-item" onclick="alert('查看用户环保社的减碳详情')">
-                        <div class="rank-number top3">2</div>
-                        <div class="rank-avatar">🌿</div>
-                        <div class="rank-info">
+                        <div class="rank-left">
+                            <div class="rank-number top3">2</div>
+                            <div class="rank-avatar">🌿</div>
+                        </div>
+                        <div class="rank-middle">
                             <div class="rank-name">环保社</div>
                             <div class="rank-level">LV8</div>
                         </div>
-                        <div class="rank-score">115kg</div>
+                        <div class="rank-right">115kg</div>
                     </div>
                     <div class="rank-item" onclick="alert('查看用户低碳校园的减碳详情')">
-                        <div class="rank-number top3">3</div>
-                        <div class="rank-avatar">🌍</div>
-                        <div class="rank-info">
+                        <div class="rank-left">
+                            <div class="rank-number top3">3</div>
+                            <div class="rank-avatar">🌍</div>
+                        </div>
+                        <div class="rank-middle">
                             <div class="rank-name">低碳校园</div>
                             <div class="rank-level">LV8</div>
                         </div>
-                        <div class="rank-score">110kg</div>
+                        <div class="rank-right">110kg</div>
                     </div>
                     <div class="rank-item" onclick="alert('查看用户绿色行动的减碳详情')">
-                        <div class="rank-number">4</div>
-                        <div class="rank-avatar">♻️</div>
-                        <div class="rank-info">
+                        <div class="rank-left">
+                            <div class="rank-number">4</div>
+                            <div class="rank-avatar">♻️</div>
+                        </div>
+                        <div class="rank-middle">
                             <div class="rank-name">绿色行动</div>
                             <div class="rank-level">LV7</div>
                         </div>
-                        <div class="rank-score">105kg</div>
+                        <div class="rank-right">105kg</div>
                     </div>
                     <div class="rank-item" onclick="alert('查看用户生态校园的减碳详情')">
-                        <div class="rank-number">5</div>
-                        <div class="rank-avatar">🌱</div>
-                        <div class="rank-info">
+                        <div class="rank-left">
+                            <div class="rank-number">5</div>
+                            <div class="rank-avatar">🌱</div>
+                        </div>
+                        <div class="rank-middle">
                             <div class="rank-name">生态校园</div>
                             <div class="rank-level">LV7</div>
                         </div>
-                        <div class="rank-score">100kg</div>
+                        <div class="rank-right">100kg</div>
                     </div>
                     <div class="rank-item" onclick="alert('查看用户节能达人的减碳详情')">
-                        <div class="rank-number">6</div>
-                        <div class="rank-avatar">💡</div>
-                        <div class="rank-info">
+                        <div class="rank-left">
+                            <div class="rank-number">6</div>
+                            <div class="rank-avatar">💡</div>
+                        </div>
+                        <div class="rank-middle">
                             <div class="rank-name">节能达人</div>
                             <div class="rank-level">LV6</div>
                         </div>
-                        <div class="rank-score">95kg</div>
+                        <div class="rank-right">95kg</div>
                     </div>
                     <div class="rank-item" onclick="alert('查看用户环保志愿者的减碳详情')">
-                        <div class="rank-number">7</div>
-                        <div class="rank-avatar">🤝</div>
-                        <div class="rank-info">
+                        <div class="rank-left">
+                            <div class="rank-number">7</div>
+                            <div class="rank-avatar">🤝</div>
+                        </div>
+                        <div class="rank-middle">
                             <div class="rank-name">环保志愿者</div>
                             <div class="rank-level">LV6</div>
                         </div>
-                        <div class="rank-score">90kg</div>
+                        <div class="rank-right">90kg</div>
                     </div>
                     <div class="rank-item" onclick="alert('查看用户绿色校园的减碳详情')">
-                        <div class="rank-number">8</div>
-                        <div class="rank-avatar">🎓</div>
-                        <div class="rank-info">
+                        <div class="rank-left">
+                            <div class="rank-number">8</div>
+                            <div class="rank-avatar">🎓</div>
+                        </div>
+                        <div class="rank-middle">
                             <div class="rank-name">绿色校园</div>
                             <div class="rank-level">LV5</div>
                         </div>
-                        <div class="rank-score">85kg</div>
+                        <div class="rank-right">85kg</div>
                     </div>
                     <div class="rank-item" onclick="alert('查看用户低碳生活的减碳详情')">
-                        <div class="rank-number">9</div>
-                        <div class="rank-avatar">🏠</div>
-                        <div class="rank-info">
+                        <div class="rank-left">
+                            <div class="rank-number">9</div>
+                            <div class="rank-avatar">🏠</div>
+                        </div>
+                        <div class="rank-middle">
                             <div class="rank-name">低碳生活</div>
                             <div class="rank-level">LV5</div>
                         </div>
-                        <div class="rank-score">80kg</div>
+                        <div class="rank-right">80kg</div>
                     </div>
                     <div class="rank-item" onclick="alert('查看用户环保小卫士的减碳详情')">
-                        <div class="rank-number">10</div>
-                        <div class="rank-avatar">🛡️</div>
-                        <div class="rank-info">
+                        <div class="rank-left">
+                            <div class="rank-number">10</div>
+                            <div class="rank-avatar">🛡️</div>
+                        </div>
+                        <div class="rank-middle">
                             <div class="rank-name">环保小卫士</div>
                             <div class="rank-level">LV4</div>
                         </div>
-                        <div class="rank-score">75kg</div>
+                        <div class="rank-right">75kg</div>
                     </div>
                 `;
             }

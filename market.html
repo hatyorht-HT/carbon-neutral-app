@@ -80,10 +80,10 @@
             margin-bottom: 4px;
         }
         
-        .market-points {
-            font-size: 12px;
-            color: var(--primary);
-            font-weight: 500;
+        .item-price {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-dark);
             margin-bottom: 4px;
         }
         
@@ -132,6 +132,13 @@
             padding: 12px 24px;
             font-size: 14px;
             cursor: pointer;
+            height: 48px;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+        
+        .empty-market-btn:hover {
+            background-color: var(--primary-dark);
         }
     </style>
 </head>
@@ -141,7 +148,7 @@
         
         <!-- 顶部搜索框 -->
         <div class="market-header">
-            <input type="text" class="search-box" placeholder="搜索闲置物品" onkeypress="if(event.key === 'Enter') alert('搜索功能开发中，您输入了：' + this.value)">
+            <input type="text" class="search-box" id="searchInput" placeholder="搜索闲置物品">
         </div>
         
         <!-- 分类筛选 -->
@@ -176,7 +183,7 @@
             <span style="font-size: 48px;">🔐</span>
             <p style="font-size: 18px; margin: 20px 0;">登录后查看闲置市场</p>
             <p style="color: #666; margin-bottom: 32px;">浏览和兑换其他用户发布的闲置物品</p>
-            <button style="background-color: #2ecc71; color: white; border: none; border-radius: 8px; padding: 14px 32px; font-size: 16px; font-weight: 500; cursor: pointer; min-height: 44px; min-width: 120px;" onclick="window.location.href='login.html'">立即登录</button>
+            <button style="background-color: var(--primary); color: white; border: none; border-radius: 8px; padding: 12px 32px; font-size: 16px; font-weight: 500; cursor: pointer; height: 48px; min-width: 120px; transition: background-color 0.2s;" onclick="window.location.href='login.html'">立即登录</button>
         </div>
     </div>
     
@@ -187,9 +194,9 @@
             <div class="modal-body">
                 <div class="modal-image" id="modalImage">📱</div>
                 <h3 class="modal-title" id="modalTitle"></h3>
-                <div class="modal-points" id="modalPoints"></div>
+                <div class="modal-price" id="modalPrice"></div>
                 <div class="modal-detail" id="modalDetail"></div>
-                <button class="modal-btn" onclick="exchangeProduct()">立即兑换</button>
+                <button class="modal-btn" onclick="purchaseProduct()">立即购买</button>
             </div>
         </div>
     </div>
@@ -199,20 +206,20 @@
     <script>
         // 检查登录状态
         function checkLoginStatus() {
-            const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
             const marketContent = document.getElementById('marketContent');
             const marketLoginPrompt = document.getElementById('marketLoginPrompt');
             
-            if (isLoggedIn) {
-                marketContent.style.display = 'block';
-                marketLoginPrompt.style.display = 'none';
-                // 加载闲置物品
-                loadUsedItems();
-            } else {
-                marketContent.style.display = 'none';
-                marketLoginPrompt.style.display = 'block';
-            }
+            // 无论是否登录，都显示商品列表
+            marketContent.style.display = 'block';
+            marketLoginPrompt.style.display = 'none';
+            // 加载闲置物品
+            loadUsedItems();
         }
+        
+        // 全局变量
+        let currentCategory = 'all';
+        let currentSearch = '';
+        let currentProduct = null;
         
         // 加载闲置物品
         function loadUsedItems() {
@@ -240,7 +247,7 @@
                         <div class="market-image">${item.image || '📷'}</div>
                         <div class="market-info">
                             <div class="market-name">${item.name}</div>
-                            <div class="market-points">${item.points}积分</div>
+                            <div class="item-price">¥${item.price || 0}</div>
                             <div class="market-publisher">${item.publisher}</div>
                             <div class="market-time">${item.time}</div>
                         </div>
@@ -251,24 +258,20 @@
             }
         }
         
-        // 切换分类
-        function switchCategory(category) {
-            // 切换激活状态
-            const tabs = document.querySelectorAll('.category-tab');
-            tabs.forEach(tab => tab.classList.remove('active'));
-            event.target.classList.add('active');
-            
-            // 分类筛选逻辑
+        // 筛选物品
+        function filterItems() {
             const usedItems = JSON.parse(localStorage.getItem('usedItems') || '[]');
             const marketGrid = document.getElementById('marketGrid');
             const emptyMarket = document.getElementById('emptyMarket');
             
-            // 根据分类筛选物品
+            // 根据分类和搜索筛选物品
             let filteredItems = usedItems;
-            if (category !== 'all') {
+            
+            // 分类筛选
+            if (currentCategory !== 'all') {
                 // 映射分类值到中文类别名称
                 let categoryName = '';
-                switch(category) {
+                switch(currentCategory) {
                     case 'digital':
                         categoryName = '数码';
                         break;
@@ -287,13 +290,23 @@
                     default:
                         categoryName = '其他';
                 }
-                filteredItems = usedItems.filter(item => item.category === categoryName);
+                filteredItems = filteredItems.filter(item => item.category === categoryName);
+            }
+            
+            // 搜索筛选
+            if (currentSearch) {
+                const searchLower = currentSearch.toLowerCase();
+                filteredItems = filteredItems.filter(item => 
+                    item.name.toLowerCase().includes(searchLower)
+                );
             }
             
             // 重新渲染物品
             if (filteredItems.length === 0) {
                 marketGrid.style.display = 'none';
                 emptyMarket.style.display = 'block';
+                // 修改空状态文本
+                document.querySelector('.empty-market-text').textContent = currentSearch ? '未找到相关闲置' : '暂无闲置物品';
             } else {
                 marketGrid.style.display = 'grid';
                 emptyMarket.style.display = 'none';
@@ -311,7 +324,7 @@
                         <div class="market-image">${item.image || '📷'}</div>
                         <div class="market-info">
                             <div class="market-name">${item.name}</div>
-                            <div class="market-points">${item.points}积分</div>
+                            <div class="item-price">¥${item.price || 0}</div>
                             <div class="market-publisher">${item.publisher}</div>
                             <div class="market-time">${item.time}</div>
                         </div>
@@ -322,11 +335,41 @@
             }
         }
         
+        // 切换分类
+        function switchCategory(category) {
+            // 切换激活状态
+            const tabs = document.querySelectorAll('.category-tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // 更新当前分类并筛选
+            currentCategory = category;
+            filterItems();
+        }
+        
+        // 绑定搜索事件
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    currentSearch = this.value;
+                    filterItems();
+                });
+            }
+        });
+        
         // 打开商品详情模态框
         function openModal(item) {
+            const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+            if (!isLoggedIn) {
+                alert('请先登录后再查看商品详情');
+                return;
+            }
+            
+            currentProduct = item;
             document.getElementById('modalImage').textContent = getCategoryIcon(item.category);
             document.getElementById('modalTitle').textContent = item.name;
-            document.getElementById('modalPoints').textContent = item.points + ' 积分';
+            document.getElementById('modalPrice').textContent = '¥' + (item.price || 0);
             document.getElementById('modalDetail').innerHTML = `
                 <p>类别：${item.category}</p>
                 <p>新旧程度：${item.condition}</p>
@@ -359,10 +402,41 @@
             document.getElementById('productModal').style.display = 'none';
         }
         
-        // 兑换商品
-        function exchangeProduct() {
-            alert('兑换成功');
-            closeModal();
+        // 购买商品
+        function purchaseProduct() {
+            if (!currentProduct) return;
+            
+            const purchaseBtn = document.querySelector('.modal-btn');
+            const originalText = purchaseBtn.textContent;
+            purchaseBtn.textContent = '购买中...';
+            purchaseBtn.disabled = true;
+            purchaseBtn.classList.add('btn-loading');
+            
+            setTimeout(function() {
+                // 确认购买
+                if (confirm(`确认花费 ¥${currentProduct.price || 0} 购买此商品？`)) {
+                    // 给购买者增加积分奖励
+                    const user = localStorage.getItem('username') || '林小绿';
+                    const key = `points_${user}`;
+                    const currentPoints = parseInt(localStorage.getItem(key)) || 0;
+                    const newPoints = currentPoints + 5;
+                    localStorage.setItem(key, newPoints.toString());
+                    
+                    // 从 localStorage 中删除该商品
+                    const usedItems = JSON.parse(localStorage.getItem('usedItems') || '[]');
+                    const updatedItems = usedItems.filter(item => item.id !== currentProduct.id);
+                    localStorage.setItem('usedItems', JSON.stringify(updatedItems));
+                    
+                    // 刷新市场列表
+                    loadUsedItems();
+                    
+                    alert('购买成功！获得5积分');
+                }
+                closeModal();
+                purchaseBtn.textContent = originalText;
+                purchaseBtn.disabled = false;
+                purchaseBtn.classList.remove('btn-loading');
+            }, 800);
         }
         
         // 点击模态框外部关闭
@@ -373,8 +447,28 @@
             }
         }
         
-        // 页面加载时检查登录状态
-        window.onload = checkLoginStatus;
+        // 初始化模拟数据
+        function initMockData() {
+            if (!localStorage.getItem('usedItems')) {
+                const mockItems = [
+                    { id: 1, name: '中古玻璃瓶', category: '家居', points: 15, publisher: '绿色旅人', time: '2小时前', image: '📷' },
+                    { id: 2, name: '复古台灯', category: '家居', points: 25, publisher: '低碳小王', time: '昨天', image: '📷' },
+                    { id: 3, name: '二手自行车', category: '出行', points: 120, publisher: '森林守护者', time: '3天前', image: '📷' },
+                    { id: 4, name: '智能手机', category: '数码', points: 50, publisher: '林小绿', time: '刚刚', image: '📷' },
+                    { id: 5, name: '纯棉T恤', category: '衣物', points: 10, publisher: '林小绿', time: '1小时前', image: '📷' },
+                    { id: 6, name: '编程书籍', category: '书籍', points: 8, publisher: '低碳小王', time: '4小时前', image: '📷' },
+                    { id: 7, name: '蓝牙耳机', category: '数码', points: 30, publisher: '绿色旅人', time: '1天前', image: '📷' },
+                    { id: 8, name: '瑜伽垫', category: '运动', points: 20, publisher: '森林守护者', time: '2天前', image: '📷' }
+                ];
+                localStorage.setItem('usedItems', JSON.stringify(mockItems));
+            }
+        }
+        
+        // 页面加载时检查登录状态和初始化数据
+        window.onload = function() {
+            initMockData();
+            checkLoginStatus();
+        };
     </script>
     <script src="js/footer.js"></script>
 </body>

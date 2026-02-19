@@ -50,10 +50,13 @@
                     <div class="radio-option">一般</div>
                 </div>
                 
+                <h3>价格（元）</h3>
+                <input type="number" id="itemPrice" placeholder="例如 20" min="0" step="1" required>
+                
                 <!-- 预估奖励 -->
                 <div style="background-color: #f0fdf4; border-radius: 8px; padding: 16px; margin: 16px 0;">
                     <h3 style="margin-bottom: 8px;">预估奖励</h3>
-                    <div style="font-size: 18px; font-weight: 700; color: #2ecc71;">预计可得积分 15</div>
+                    <div style="font-size: 18px; font-weight: 700; color: #2ecc71;">预计可得积分 10</div>
                 </div>
                 
                 <!-- 立即发布按钮 -->
@@ -110,32 +113,9 @@
                 if (isLoggedIn) {
                     publishForm.style.display = 'block';
                     publishLoginPrompt.style.display = 'none';
-                    // 检查是否有发布历史
-                    checkPublishHistory();
                 } else {
                     publishForm.style.display = 'none';
                     publishLoginPrompt.style.display = 'block';
-                }
-            }
-            
-            // 检查发布历史
-            function checkPublishHistory() {
-                // 模拟空数据情况（可根据实际情况修改）
-                const hasHistory = false; // 设置为false可测试空状态
-                
-                if (!hasHistory) {
-                    const container = document.querySelector('.container');
-                    const emptyState = document.createElement('div');
-                    emptyState.className = 'empty-state';
-                    emptyState.style.marginBottom = '24px';
-                    emptyState.innerHTML = `
-                        <div class="empty-state-icon">📦</div>
-                        <div class="empty-state-text">你还没有发布过闲置</div>
-                        <div class="empty-state-subtext">快去发布吧！</div>
-                    `;
-                    // 插入到表单上方
-                    const publishForm = document.getElementById('publishForm');
-                    container.insertBefore(emptyState, publishForm);
                 }
             }
             
@@ -218,6 +198,7 @@
         function submitForm() {
             const itemName = document.getElementById('itemName').value;
             const itemCategory = document.getElementById('itemCategory').value;
+            const itemPrice = parseFloat(document.getElementById('itemPrice').value) || 0;
             const submitBtn = document.querySelector('.btn');
             
             // 验证
@@ -230,6 +211,11 @@
             
             if (!itemCategory) {
                 showError(document.getElementById('itemCategory'), 'itemCategoryError', '请选择类别');
+                isValid = false;
+            }
+            
+            if (itemPrice < 0) {
+                showError(document.getElementById('itemPrice'), 'itemPriceError', '价格不能为负数');
                 isValid = false;
             }
             
@@ -251,7 +237,7 @@
                     name: itemName,
                     category: getCategoryName(itemCategory),
                     condition: getCondition(),
-                    points: calculatePoints(itemCategory),
+                    price: itemPrice,
                     publisher: '林小绿', // 从登录用户获取（目前固定）
                     time: '刚刚',
                     image: '📷' // 添加默认图片占位符
@@ -262,12 +248,20 @@
                 usedItems.unshift(item); // 添加到数组开头
                 localStorage.setItem('usedItems', JSON.stringify(usedItems));
                 
-                alert('发布成功！您的闲置已提交审核');
+                // 增加发布者积分
+                const user = localStorage.getItem('username') || '林小绿';
+                const key = `points_${user}`;
+                const currentPoints = parseInt(localStorage.getItem(key)) || 0;
+                const newPoints = currentPoints + 10;
+                localStorage.setItem(key, newPoints.toString());
+                
+                alert('发布成功！您的闲置已提交审核，获得10积分奖励');
                 
                 // 清空表单
                 document.getElementById('fileInput').value = '';
                 document.getElementById('itemName').value = '';
                 document.getElementById('itemCategory').value = '';
+                document.getElementById('itemPrice').value = '';
                 
                 // 重置照片预览
                 document.getElementById('photoPreview').innerHTML = '📷';

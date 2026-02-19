@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <meta name="description" content="我的发布，查看和管理自己发布的闲置物品。">
+    <title>我的发布 - 碳中和校园</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* 我的发布页面特有样式 */
+        .my-posts-header {
+            margin-bottom: 16px;
+        }
+        
+        .my-posts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin: 16px 0;
+        }
+        
+        .my-post-card {
+            background-color: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .my-post-image {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            background-color: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .my-post-info {
+            padding: 12px;
+        }
+        
+        .my-post-name {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        
+        .my-post-price {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 4px;
+        }
+        
+        .my-post-time {
+            font-size: 10px;
+            color: #999;
+            margin-bottom: 8px;
+        }
+        
+        .my-post-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .my-post-btn {
+            flex: 1;
+            padding: 6px;
+            border: 1px solid var(--primary);
+            border-radius: 6px;
+            font-size: 12px;
+            text-align: center;
+            cursor: pointer;
+        }
+        
+        .my-post-btn.edit {
+            background-color: white;
+            color: var(--primary);
+        }
+        
+        .my-post-btn.delete {
+            background-color: #ffebee;
+            color: #e53935;
+            border-color: #e53935;
+        }
+        
+        .empty-posts {
+            text-align: center;
+            padding: 60px 20px;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin: 20px 0;
+        }
+        
+        .empty-posts-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        
+        .empty-posts-text {
+            font-size: 16px;
+            color: var(--text-light);
+            margin-bottom: 8px;
+        }
+        
+        .empty-posts-subtext {
+            font-size: 14px;
+            color: var(--text-light);
+            margin-bottom: 24px;
+        }
+        
+        .empty-posts-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-size: 14px;
+            cursor: pointer;
+            height: 48px;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+        
+        .empty-posts-btn:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .login-prompt {
+            text-align: center;
+            padding: 60px 20px;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>我的发布</h1>
+        
+        <!-- 已登录状态内容 -->
+        <div id="postsContent" style="display: none;">
+            <!-- 我的发布网格 -->
+            <div class="my-posts-grid" id="myPostsGrid">
+                <!-- 动态生成的卡片将在这里显示 -->
+            </div>
+            
+            <!-- 空状态 -->
+            <div id="emptyPosts" class="empty-posts" style="display: none;">
+                <div class="empty-posts-icon">📦</div>
+                <div class="empty-posts-text">你还没有发布过闲置</div>
+                <div class="empty-posts-subtext">快去发布吧！</div>
+                <button class="empty-posts-btn" onclick="window.location.href='recycle.html'">去发布</button>
+            </div>
+        </div>
+        
+        <!-- 未登录状态内容 -->
+        <div id="loginPrompt" class="login-prompt">
+            <span style="font-size: 48px; margin-bottom: 24px; display: block;">🔐</span>
+            <h2 style="margin-bottom: 16px;">您还未登录</h2>
+            <p style="color: #666; margin-bottom: 32px;">登录后查看您发布的闲置物品</p>
+            <button style="background-color: var(--primary); color: white; border: none; border-radius: 8px; padding: 12px 32px; font-size: 16px; font-weight: 500; cursor: pointer; height: 48px; min-width: 120px; transition: background-color 0.2s;" onclick="window.location.href='login.html'">立即登录</button>
+        </div>
+    </div>
+    
+    <script src="js/auth.js"></script>
+    <script src="js/footer.js"></script>
+    <script>
+        // 检查登录状态
+        function checkLoginStatus() {
+            const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+            const postsContent = document.getElementById('postsContent');
+            const loginPrompt = document.getElementById('loginPrompt');
+            
+            if (isLoggedIn) {
+                postsContent.style.display = 'block';
+                loginPrompt.style.display = 'none';
+                // 加载我的发布
+                loadMyPosts();
+            } else {
+                postsContent.style.display = 'none';
+                loginPrompt.style.display = 'block';
+            }
+        }
+        
+        // 加载我的发布
+        function loadMyPosts() {
+            const currentUser = '林小绿'; // 从登录状态获取，目前固定
+            const usedItems = JSON.parse(localStorage.getItem('usedItems') || '[]');
+            const myPosts = usedItems.filter(item => item.publisher === currentUser);
+            
+            const myPostsGrid = document.getElementById('myPostsGrid');
+            const emptyPosts = document.getElementById('emptyPosts');
+            
+            if (myPosts.length === 0) {
+                myPostsGrid.style.display = 'none';
+                emptyPosts.style.display = 'block';
+            } else {
+                myPostsGrid.style.display = 'grid';
+                emptyPosts.style.display = 'none';
+                
+                // 清空网格
+                myPostsGrid.innerHTML = '';
+                
+                // 生成卡片
+                myPosts.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = 'my-post-card';
+                    
+                    card.innerHTML = `
+                        <div class="my-post-image">${item.image || '📷'}</div>
+                        <div class="my-post-info">
+                            <div class="my-post-name">${item.name}</div>
+                            <div class="my-post-price">¥${item.price || 0}</div>
+                            <div class="my-post-time">${item.time}</div>
+                            <div class="my-post-actions">
+                                <div class="my-post-btn edit" onclick="editPost(${item.id})">编辑</div>
+                                <div class="my-post-btn delete" onclick="deletePost(${item.id})">下架</div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    myPostsGrid.appendChild(card);
+                });
+            }
+        }
+        
+        // 编辑发布
+        function editPost(postId) {
+            alert('编辑功能开发中');
+        }
+        
+        // 下架发布
+        function deletePost(postId) {
+            if (confirm('确定要下架这个物品吗？')) {
+                const usedItems = JSON.parse(localStorage.getItem('usedItems') || '[]');
+                const updatedItems = usedItems.filter(item => item.id !== postId);
+                localStorage.setItem('usedItems', JSON.stringify(updatedItems));
+                alert('物品已下架');
+                loadMyPosts();
+            }
+        }
+        
+        // 页面加载时检查登录状态
+        window.onload = checkLoginStatus;
+    </script>
+    <script src="js/footer.js"></script>
+</body>
+</html>

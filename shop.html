@@ -7,11 +7,135 @@
     <title>积分商城 - 碳中和校园</title>
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* 商城页面特有样式 */
+        .market-header {
+            margin-bottom: 16px;
+        }
+        
+        .search-box {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .category-tabs {
+            display: flex;
+            overflow-x: auto;
+            gap: 12px;
+            padding: 8px 0;
+            margin-bottom: 16px;
+        }
+        
+        .category-tab {
+            padding: 8px 16px;
+            background-color: #f0f9f0;
+            border-radius: 20px;
+            font-size: 14px;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+        
+        .category-tab.active {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .product-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin: 16px 0;
+        }
+        
+        .product-card {
+            background-color: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .product-image {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            background-color: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .product-info {
+            padding: 12px;
+        }
+        
+        .product-name {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        
+        .product-points {
+            font-size: 12px;
+            color: var(--primary);
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        
+        .product-count {
+            font-size: 10px;
+            color: #999;
+        }
+        
+        .empty-shop {
+            text-align: center;
+            padding: 60px 20px;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin: 20px 0;
+        }
+        
+        .empty-shop-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        
+        .empty-shop-text {
+            font-size: 16px;
+            color: var(--text-light);
+            margin-bottom: 8px;
+        }
+        
+        .empty-shop-subtext {
+            font-size: 14px;
+            color: var(--text-light);
+            margin-bottom: 24px;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <!-- 搜索框 -->
-        <input type="text" placeholder="搜索资源" onkeypress="if(event.key === 'Enter') alert('搜索功能开发中，您输入了：' + this.value)">
+        <h1>积分商城</h1>
+        
+        <!-- 顶部搜索框 -->
+        <div class="market-header">
+            <input type="text" id="shopSearchInput" placeholder="搜索商品" class="search-box">
+        </div>
+        
+        <!-- 分类筛选 -->
+        <div class="category-tabs">
+            <div class="category-tab active" onclick="switchShopCategory('all')">全部</div>
+            <div class="category-tab" onclick="switchShopCategory('life')">生活用品</div>
+            <div class="category-tab" onclick="switchShopCategory('digital')">数码配件</div>
+            <div class="category-tab" onclick="switchShopCategory('books')">书籍文具</div>
+            <div class="category-tab" onclick="switchShopCategory('other')">其他</div>
+        </div>
         
         <!-- 我的绿分余额 -->
         <div class="card">
@@ -20,65 +144,17 @@
             <button class="get-more" style="background: none; border: none; color: #2ecc71; font-size: 14px; cursor: pointer;" onclick="alert('获取更多积分功能开发中')">获取更多 →</button>
         </div>
         
-        <!-- 热门兑换 -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin: 16px 0;">
-            <h2>热门兑换</h2>
-            <span style="font-size: 14px; color: #666;">查看全部</span>
-        </div>
-        <div class="product-grid">
-            <div class="product-card" onclick="alert('商品详情开发中，积分：15，已兑换1235人')">
-                <div class="product-image" loading="lazy">🛍️</div>
-                <div class="product-info">
-                    <div class="product-name">再生帆布手提袋</div>
-                    <div class="product-points">15积分</div>
-                    <div class="product-count">1,235人已兑换</div>
-                </div>
-            </div>
-            <div class="product-card" onclick="alert('商品详情开发中，积分：10，已兑换859人')">
-                <div class="product-image" loading="lazy">🍽️</div>
-                <div class="product-info">
-                    <div class="product-name">竹制餐具套装</div>
-                    <div class="product-points">10积分</div>
-                    <div class="product-count">859人已兑换</div>
-                </div>
-            </div>
+        <!-- 商品列表 -->
+        <h2>商品列表</h2>
+        <div class="product-grid" id="shopProductGrid">
+            <!-- 动态生成的商品卡片将在这里显示 -->
         </div>
         
-        <!-- 精品推荐 -->
-        <h2>精品推荐</h2>
-        <div class="product-grid">
-            <div class="product-card" onclick="alert('商品详情开发中，积分：50，已兑换214人')">
-                <div class="product-image" loading="lazy">🔋</div>
-                <div class="product-info">
-                    <div class="product-name">太阳能充电宝</div>
-                    <div class="product-points">50积分</div>
-                    <div class="product-count">214人已兑换</div>
-                </div>
-            </div>
-            <div class="product-card" onclick="alert('商品详情开发中，积分：8，已兑换506人')">
-                <div class="product-image" loading="lazy">📒</div>
-                <div class="product-info">
-                    <div class="product-name">再生纸极简笔记本</div>
-                    <div class="product-points">8积分</div>
-                    <div class="product-count">506人已兑换</div>
-                </div>
-            </div>
-            <div class="product-card" onclick="alert('商品详情开发中，积分：35，已兑换920人')">
-                <div class="product-image" loading="lazy">☕</div>
-                <div class="product-info">
-                    <div class="product-name">不锈钢真空保温杯</div>
-                    <div class="product-points">35积分</div>
-                    <div class="product-count">920人已兑换</div>
-                </div>
-            </div>
-            <div class="product-card" onclick="alert('商品详情开发中，积分：12，已兑换310人')">
-                <div class="product-image" loading="lazy">🌱</div>
-                <div class="product-info">
-                    <div class="product-name">可种植种子贺卡</div>
-                    <div class="product-points">12积分</div>
-                    <div class="product-count">310人已兑换</div>
-                </div>
-            </div>
+        <!-- 空状态 -->
+        <div id="emptyShop" class="empty-shop" style="display: none;">
+            <div class="empty-shop-icon">🛍️</div>
+            <div class="empty-shop-text">未找到相关商品</div>
+            <div class="empty-shop-subtext">试试其他关键词或分类</div>
         </div>
     </div>
     
@@ -97,22 +173,105 @@
     </div>
     
     <script src="js/auth.js"></script>
+    <script src="js/points.js"></script>
     <script src="js/script.js"></script>
     <script>
         // 商品数据
         const products = [
-            { id: 1, name: '再生帆布手提袋', points: 15, count: 1235, image: '🛍️', description: '环保材质，可循环使用，简约设计，大容量' },
-            { id: 2, name: '竹制餐具套装', points: 10, count: 859, image: '🍽️', description: '天然竹材，健康环保，便携设计，适合户外使用' },
-            { id: 3, name: '太阳能充电宝', points: 50, count: 214, image: '🔋', description: '利用太阳能充电，环保节能，适合户外活动' },
-            { id: 4, name: '再生纸极简笔记本', points: 8, count: 506, image: '📒', description: '使用再生纸制作，环保无害，简约设计' },
-            { id: 5, name: '不锈钢真空保温杯', points: 35, count: 920, image: '☕', description: '304不锈钢材质，真空保温，环保耐用' },
-            { id: 6, name: '可种植种子贺卡', points: 12, count: 310, image: '🌱', description: '使用可降解材料，内含种子，可种植成植物' }
+            { id: 1, name: '再生帆布手提袋', points: 15, count: 1235, image: '🛍️', description: '环保材质，可循环使用，简约设计，大容量', category: 'life' },
+            { id: 2, name: '竹制餐具套装', points: 10, count: 859, image: '🍽️', description: '天然竹材，健康环保，便携设计，适合户外使用', category: 'life' },
+            { id: 3, name: '太阳能充电宝', points: 50, count: 214, image: '🔋', description: '利用太阳能充电，环保节能，适合户外活动', category: 'digital' },
+            { id: 4, name: '再生纸极简笔记本', points: 8, count: 506, image: '📒', description: '使用再生纸制作，环保无害，简约设计', category: 'books' },
+            { id: 5, name: '不锈钢真空保温杯', points: 35, count: 920, image: '☕', description: '304不锈钢材质，真空保温，环保耐用', category: 'life' },
+            { id: 6, name: '可种植种子贺卡', points: 12, count: 310, image: '🌱', description: '使用可降解材料，内含种子，可种植成植物', category: 'other' },
+            { id: 7, name: '环保购物袋', points: 5, count: 1500, image: '🛒', description: '可重复使用，减少塑料袋使用', category: 'life' },
+            { id: 8, name: 'LED节能灯泡', points: 18, count: 750, image: '💡', description: '节能省电，使用寿命长', category: 'life' },
+            { id: 9, name: '无线充电器', points: 45, count: 320, image: '⚡', description: '无线充电，减少数据线使用', category: 'digital' },
+            { id: 10, name: '环保鼠标垫', points: 12, count: 480, image: '🖱️', description: '使用再生材料制作', category: 'digital' },
+            { id: 11, name: '绿植盆栽', points: 20, count: 620, image: '🌿', description: '净化空气，美化环境', category: 'other' },
+            { id: 12, name: '环保书签', points: 3, count: 2000, image: '📖', description: '使用再生纸制作', category: 'books' }
         ];
+        
+        // 全局变量
+        let currentShopCategory = 'all';
+        let currentShopSearch = '';
+        let currentProduct = null;
+        
+        // 渲染商品
+        function renderShopProducts() {
+            const productGrid = document.getElementById('shopProductGrid');
+            const emptyShop = document.getElementById('emptyShop');
+            
+            // 根据分类和搜索筛选商品
+            let filteredProducts = products;
+            
+            // 分类筛选
+            if (currentShopCategory !== 'all') {
+                filteredProducts = filteredProducts.filter(product => product.category === currentShopCategory);
+            }
+            
+            // 搜索筛选
+            if (currentShopSearch) {
+                const searchLower = currentShopSearch.toLowerCase();
+                filteredProducts = filteredProducts.filter(product => 
+                    product.name.toLowerCase().includes(searchLower)
+                );
+            }
+            
+            // 重新渲染商品
+            if (filteredProducts.length === 0) {
+                productGrid.style.display = 'none';
+                emptyShop.style.display = 'block';
+            } else {
+                productGrid.style.display = 'grid';
+                emptyShop.style.display = 'none';
+                
+                // 清空网格
+                productGrid.innerHTML = '';
+                
+                // 生成商品卡片
+                filteredProducts.forEach(product => {
+                    const card = document.createElement('div');
+                    card.className = 'product-card';
+                    card.onclick = () => openModal(product.id);
+                    
+                    card.innerHTML = `
+                        <div class="product-image" loading="lazy">${product.image || '📷'}</div>
+                        <div class="product-info">
+                            <div class="product-name">${product.name}</div>
+                            <div class="product-points">${product.points}积分</div>
+                            <div class="product-count">${product.count}人已兑换</div>
+                        </div>
+                    `;
+                    
+                    productGrid.appendChild(card);
+                });
+            }
+        }
+        
+        // 切换商品分类
+        function switchShopCategory(category) {
+            // 切换激活状态
+            const tabs = document.querySelectorAll('.category-tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // 更新当前分类并重新渲染
+            currentShopCategory = category;
+            renderShopProducts();
+        }
         
         // 打开商品详情模态框
         function openModal(productId) {
+            const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+            if (!isLoggedIn) {
+                alert('请先登录后再查看商品详情');
+                return;
+            }
+            
             const product = products.find(p => p.id === productId);
             if (product) {
+                currentProduct = product;
                 document.getElementById('modalImage').textContent = product.image;
                 document.getElementById('modalTitle').textContent = product.name;
                 document.getElementById('modalPoints').textContent = product.points + ' 积分';
@@ -128,8 +287,42 @@
         
         // 兑换商品
         function exchangeProduct() {
-            alert('兑换成功');
-            closeModal();
+            if (!currentProduct) return;
+            
+            const exchangeBtn = document.querySelector('.modal-btn');
+            const originalText = exchangeBtn.textContent;
+            exchangeBtn.textContent = '兑换中...';
+            exchangeBtn.disabled = true;
+            exchangeBtn.classList.add('btn-loading');
+            
+            // 获取当前积分余额
+            let currentPoints = getUserPoints();
+            const productPoints = currentProduct.points;
+            
+            setTimeout(function() {
+                if (currentPoints >= productPoints) {
+                    // 扣除积分
+                    const user = getCurrentUser();
+                    const key = `points_${user}`;
+                    const newPoints = currentPoints - productPoints;
+                    localStorage.setItem(key, newPoints.toString());
+                    
+                    // 更新页面上的积分余额
+                    const pointsElement = document.querySelector('.card div[style*="font-size: 24px"]');
+                    if (pointsElement) {
+                        pointsElement.textContent = newPoints.toLocaleString() + ' 积分';
+                    }
+                    
+                    alert('兑换成功，已扣除' + productPoints + '积分');
+                } else {
+                    alert('积分不足，无法兑换此商品');
+                }
+                
+                closeModal();
+                exchangeBtn.textContent = originalText;
+                exchangeBtn.disabled = false;
+                exchangeBtn.classList.remove('btn-loading');
+            }, 800);
         }
         
         // 点击模态框外部关闭
@@ -140,14 +333,25 @@
             }
         }
         
-        // 为商品卡片添加点击事件
+        // 绑定搜索事件
         document.addEventListener('DOMContentLoaded', function() {
-            const productCards = document.querySelectorAll('.product-card');
-            productCards.forEach((card, index) => {
-                card.onclick = function() {
-                    openModal(index + 1);
-                };
-            });
+            const searchInput = document.getElementById('shopSearchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    currentShopSearch = this.value;
+                    renderShopProducts();
+                });
+            }
+            
+            // 更新积分余额显示
+            const pointsElement = document.querySelector('.card div[style*="font-size: 24px"]');
+            if (pointsElement) {
+                const currentPoints = getUserPoints();
+                pointsElement.textContent = currentPoints.toLocaleString() + ' 积分';
+            }
+            
+            // 初始渲染商品
+            renderShopProducts();
         });
     </script>
     <script src="js/footer.js"></script>
