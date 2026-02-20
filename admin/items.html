@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>物品管理 - 后台管理系统</title>
+    <script src="js/admin-utils.js"></script>
+    <style>
+        /* 复用现有 CSS 变量 */
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a0ca3;
+            --secondary: #4cc9f0;
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --danger: #f87171;
+            --light: #f9fafb;
+            --dark: #111827;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+            --border-radius: 8px;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--gray-800);
+            background-color: var(--light);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* 导航栏 */
+        .navbar {
+            background-color: var(--white, white);
+            box-shadow: var(--shadow-sm);
+            padding: 1rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .navbar-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .navbar-menu {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .navbar-link {
+            color: var(--gray-600);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+        }
+
+        .navbar-link:hover {
+            background-color: var(--gray-100);
+            color: var(--primary);
+        }
+
+        .navbar-link.active {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        /* 页面标题 */
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--gray-900);
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            font-size: 1rem;
+            color: var(--gray-600);
+        }
+
+        /* 卡片 */
+        .card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-sm);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* 表格 */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        th {
+            background-color: var(--gray-50);
+            font-weight: 600;
+            color: var(--gray-700);
+        }
+
+        tr:hover {
+            background-color: var(--gray-50);
+        }
+
+        /* 按钮 */
+        .btn {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            font-size: 0.875rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #34d399;
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #fca5a5;
+        }
+
+        /* 通知 */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            color: white;
+            font-weight: 500;
+            z-index: 1001;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            box-shadow: var(--shadow-md);
+        }
+
+        .toast.success {
+            background-color: var(--success);
+        }
+
+        .toast.error {
+            background-color: var(--danger);
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        /* 底部导航 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: white;
+            border-top: 1px solid var(--gray-200);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 12px 0;
+            z-index: 100;
+            box-shadow: 0 -4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
+        .bottom-nav-item {
+            flex: 1;
+            text-align: center;
+            font-size: 11px;
+            color: var(--gray-600);
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px 4px;
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+        }
+
+        .bottom-nav-item.active {
+            color: var(--primary);
+        }
+
+        .bottom-nav-icon {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+                padding-bottom: 80px;
+            }
+
+            .navbar-container {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+
+            .navbar-menu {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .page-title {
+                font-size: 1.5rem;
+            }
+
+            th, td {
+                padding: 0.75rem;
+                font-size: 0.875rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="dashboard.html" class="navbar-brand">后台管理系统</a>
+            <div class="navbar-menu">
+                <a href="dashboard.html" class="navbar-link">仪表盘</a>
+                <a href="users.html" class="navbar-link">用户管理</a>
+                <a href="items.html" class="navbar-link active">物品管理</a>
+                <a href="#" id="logoutBtn" class="navbar-link">退出登录</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <h1 class="page-title">物品管理</h1>
+            <p class="page-subtitle">管理所有回收物品，清理测试数据</p>
+        </div>
+
+        <!-- 物品表格卡片 -->
+        <div class="card">
+            <div class="table-container">
+                <table id="itemsTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>用户ID</th>
+                            <th>物品名称</th>
+                            <th>类别</th>
+                            <th>商品描述</th>
+                            <th>价格</th>
+                            <th>积分</th>
+                            <th>状态</th>
+                            <th>创建时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- 物品数据将通过 JavaScript 动态填充 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 通知 -->
+    <div id="toast" class="toast"></div>
+
+    <!-- 底部导航 -->
+    <div class="bottom-nav">
+        <a href="dashboard.html" class="bottom-nav-item">
+            <div class="bottom-nav-icon">📊</div>
+            <div>仪表盘</div>
+        </a>
+        <a href="users.html" class="bottom-nav-item">
+            <div class="bottom-nav-icon">👥</div>
+            <div>用户</div>
+        </a>
+        <a href="items.html" class="bottom-nav-item active">
+            <div class="bottom-nav-icon">📦</div>
+            <div>物品</div>
+        </a>
+        <a href="settings.html" class="bottom-nav-item">
+            <div class="bottom-nav-icon">⚙️</div>
+            <div>设置</div>
+        </a>
+    </div>
+
+    <script type="module">
+        import { supabaseClient } from './supabaseClient.js'
+        import { ensureAdminAuth, adminLogout } from './js/admin-auth.js'
+
+        // 确保管理员已登录
+        await ensureAdminAuth()
+
+        // 退出登录
+        document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+            e.preventDefault()
+            await adminLogout()
+            window.location.href = 'index.html'
+        })
+
+        // 获取所有物品数据
+        async function fetchItems() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('used_items')
+                    .select('*')
+                    .order('created_at', { ascending: false })
+
+                if (error) {
+                    throw error
+                }
+
+                return data
+            } catch (error) {
+                console.error('获取物品数据失败:', error)
+                showToast('获取物品数据失败', 'error')
+                return []
+            }
+        }
+
+        // 渲染物品表格
+        async function renderItemsTable() {
+            const items = await fetchItems()
+            const tableBody = document.querySelector('#itemsTable tbody')
+            tableBody.innerHTML = ''
+
+            items.forEach(item => {
+                const row = document.createElement('tr')
+                
+                // 确定状态显示
+                let statusDisplay = item.status || '未设置'
+                if (statusDisplay === '待审核') {
+                    statusDisplay = '<span style="color: orange; font-weight: 500;">待审核</span>'
+                } else if (statusDisplay === '已通过') {
+                    statusDisplay = '<span style="color: green; font-weight: 500;">已通过</span>'
+                } else if (statusDisplay === '已驳回') {
+                    statusDisplay = '<span style="color: red; font-weight: 500;">已驳回</span>'
+                }
+
+                // 构建操作按钮
+                let actionButtons = `
+                    <button class="btn btn-danger" onclick="deleteItem('${item.id}')">删除</button>
+                `
+
+                // 如果状态是待审核，添加审核按钮
+                if (item.status === '待审核') {
+                    actionButtons += `
+                        <button class="btn btn-success" onclick="approveItem('${item.id}')">通过</button>
+                        <button class="btn btn-warning" onclick="rejectItem('${item.id}')">驳回</button>
+                    `
+                }
+
+                row.innerHTML = `
+                    <td>${item.id}</td>
+                    <td>${item.seller}</td>
+                    <td>${item.name}</td>
+                    <td>${item.category}</td>
+                    <td>${item.condition || '未设置'}</td>
+                    <td>${item.price}</td>
+                    <td>${item.points_reward}</td>
+                    <td>${statusDisplay}</td>
+                    <td>${new Date(item.created_at).toLocaleString()}</td>
+                    <td>
+                        ${actionButtons}
+                    </td>
+                `
+                tableBody.appendChild(row)
+            })
+        }
+
+        // 删除物品
+        window.deleteItem = async function(itemId) {
+            if (!confirm('确定要删除这个物品吗？')) {
+                return
+            }
+
+            try {
+                const { error } = await supabaseClient
+                    .from('used_items')
+                    .delete()
+                    .eq('id', itemId)
+
+                if (error) {
+                    throw error
+                }
+
+                showToast('物品删除成功', 'success')
+                // 重新渲染表格
+                await renderItemsTable()
+            } catch (error) {
+                console.error('删除物品失败:', error)
+                showToast('删除物品失败: ' + error.message, 'error')
+            }
+        }
+
+        // 审核通过物品
+        window.approveItem = async function(itemId) {
+            try {
+                const { error } = await supabaseClient
+                    .from('used_items')
+                    .update({ status: '已通过' })
+                    .eq('id', itemId)
+
+                if (error) {
+                    throw error
+                }
+
+                showToast('物品审核通过', 'success')
+                // 重新渲染表格
+                await renderItemsTable()
+            } catch (error) {
+                console.error('审核通过失败:', error)
+                showToast('审核通过失败: ' + error.message, 'error')
+            }
+        }
+
+        // 审核拒绝物品
+        window.rejectItem = async function(itemId) {
+            try {
+                const { error } = await supabaseClient
+                    .from('used_items')
+                    .update({ status: '已驳回' })
+                    .eq('id', itemId)
+
+                if (error) {
+                    throw error
+                }
+
+                showToast('物品审核拒绝', 'success')
+                // 重新渲染表格
+                await renderItemsTable()
+            } catch (error) {
+                console.error('审核拒绝失败:', error)
+                showToast('审核拒绝失败: ' + error.message, 'error')
+            }
+        }
+
+        // 显示通知
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast')
+            toast.textContent = message
+            toast.className = `toast ${type} show`
+
+            setTimeout(() => {
+                toast.className = 'toast'
+            }, 3000)
+        }
+
+        // 初始加载物品数据
+        renderItemsTable()
+    </script>
+</body>
+</html>

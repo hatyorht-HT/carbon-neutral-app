@@ -139,6 +139,15 @@
             <div class="category-tab" onclick="switchShopCategory('other')">其他</div>
         </div>
         
+        <!-- 加载状态 -->
+        <div id="loadingState" style="text-align: center; padding: 60px 20px; background-color: white; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+            <div style="font-size: 32px; margin-bottom: 16px;">🔄</div>
+            <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">加载中...</div>
+            <div style="font-size: 14px; color: var(--text-light);">正在获取商品数据</div>
+        </div>
+        
+        <!-- 主内容 -->
+        <div id="shopContent" style="display: none;">
         <!-- 我的绿分余额 -->
         <div class="card">
             <h2>我的绿分余额</h2>
@@ -157,6 +166,7 @@
             <div class="empty-shop-icon">🛍️</div>
             <div class="empty-shop-text">未找到相关商品</div>
             <div class="empty-shop-subtext">试试其他关键词或分类</div>
+        </div>
         </div>
     </div>
     
@@ -224,10 +234,24 @@
         
         // 更新积分显示
         async function updatePointsDisplay() {
-            const points = await fetchUserPoints();
+            // 优先使用 localStorage 中的积分数据，快速显示
+            const cachedPoints = localStorage.getItem('userPoints');
             const pointsElement = document.getElementById('userPointsDisplay');
-            if (pointsElement) {
-                pointsElement.textContent = points.toLocaleString() + ' 积分';
+            
+            if (cachedPoints && pointsElement) {
+                pointsElement.textContent = parseInt(cachedPoints).toLocaleString() + ' 积分';
+            }
+            
+            // 异步从数据库获取最新积分并更新
+            try {
+                const points = await fetchUserPoints();
+                if (pointsElement) {
+                    pointsElement.textContent = points.toLocaleString() + ' 积分';
+                }
+                // 更新 localStorage 中的积分数据
+                localStorage.setItem('userPoints', points);
+            } catch (error) {
+                console.error('更新积分显示失败:', error);
             }
         }
         
@@ -416,7 +440,14 @@
         }
         
         // 绑定搜索事件
-        document.addEventListener('DOMContentLoaded', async function() {
+        document.addEventListener('DOMContentLoaded', function() {
+            const loadingState = document.getElementById('loadingState');
+            const shopContent = document.getElementById('shopContent');
+            
+            // 显示加载状态
+            loadingState.style.display = 'block';
+            shopContent.style.display = 'none';
+            
             const searchInput = document.getElementById('shopSearchInput');
             if (searchInput) {
                 searchInput.addEventListener('input', function() {
@@ -425,11 +456,15 @@
                 });
             }
             
-            // 更新积分余额显示
-            await updatePointsDisplay();
+            // 并行执行：立即渲染商品列表，同时异步更新积分
+            renderShopProducts(); // 立即渲染商品，不需要等待积分数据
+            updatePointsDisplay(); // 异步更新积分显示
             
-            // 初始渲染商品
-            renderShopProducts();
+            // 显示内容
+            setTimeout(() => {
+                loadingState.style.display = 'none';
+                shopContent.style.display = 'block';
+            }, 500); // 短暂延迟，确保用户能看到加载状态
         });
     </script>
     <script src="js/footer.js"></script>

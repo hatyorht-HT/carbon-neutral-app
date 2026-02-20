@@ -164,6 +164,13 @@
             <div class="category-tab" onclick="switchCategory('other')">其他</div>
         </div>
         
+        <!-- 加载状态 -->
+        <div id="loadingState" style="text-align: center; padding: 60px 20px; background-color: white; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+            <div style="font-size: 32px; margin-bottom: 16px;">🔄</div>
+            <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">加载中...</div>
+            <div style="font-size: 14px; color: var(--text-light);">正在获取闲置物品</div>
+        </div>
+        
         <!-- 已登录状态内容 -->
         <div id="marketContent" style="display: none;">
             <!-- 闲置物品网格 -->
@@ -181,7 +188,7 @@
         </div>
         
         <!-- 未登录状态内容 -->
-        <div id="marketLoginPrompt" style="text-align: center; padding: 60px 20px; background-color: white; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+        <div id="marketLoginPrompt" style="text-align: center; padding: 60px 20px; background-color: white; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: none;">
             <span style="font-size: 48px;">🔐</span>
             <p style="font-size: 18px; margin: 20px 0;">登录后查看闲置市场</p>
             <p style="color: #666; margin-bottom: 32px;">浏览和兑换其他用户发布的闲置物品</p>
@@ -208,8 +215,14 @@
     <script>
         // 检查登录状态
         function checkLoginStatus() {
+            const loadingState = document.getElementById('loadingState');
             const marketContent = document.getElementById('marketContent');
             const marketLoginPrompt = document.getElementById('marketLoginPrompt');
+            
+            // 显示加载状态
+            loadingState.style.display = 'block';
+            marketContent.style.display = 'none';
+            marketLoginPrompt.style.display = 'none';
             
             // 无论是否登录，都显示商品列表
             marketContent.style.display = 'block';
@@ -225,11 +238,15 @@
         
         // 加载闲置物品
         async function loadUsedItems() {
+            const loadingState = document.getElementById('loadingState');
+            const marketContent = document.getElementById('marketContent');
+            
             try {
                 // 从数据库获取闲置物品
             const { data: usedItems, error } = await supabaseClient
                 .from('used_items')
-                .select('*');
+                .select('*')
+                .eq('status', '已通过');
                 
                 if (error) {
                     console.error('获取闲置物品失败:', error);
@@ -256,9 +273,9 @@
                     usedItems.forEach(item => {
                         const card = document.createElement('div');
                         card.className = 'market-card';
-                        card.onclick = () => purchaseProductDirect(item);
+                        card.onclick = () => openModal(item);
                         card.style.cursor = 'pointer';
-                        card.title = '点击直接购买';
+                        card.title = '点击查看详情'
                         
                         // 处理图片显示
                         let imageHtml = '📷';
@@ -296,16 +313,28 @@
                 }
             } catch (error) {
                 console.error('加载闲置物品失败:', error);
+            } finally {
+                // 隐藏加载状态，显示内容
+                loadingState.style.display = 'none';
+                marketContent.style.display = 'block';
             }
         }
         
         // 筛选物品
         async function filterItems() {
+            const loadingState = document.getElementById('loadingState');
+            const marketContent = document.getElementById('marketContent');
+            
             try {
+                // 显示加载状态
+                loadingState.style.display = 'block';
+                marketContent.style.display = 'none';
+                
                 // 从数据库获取闲置物品
                 let { data: usedItems, error } = await supabaseClient
                     .from('used_items')
-                    .select('*');
+                    .select('*')
+                    .eq('status', '已通过');
                 
                 if (error) {
                     console.error('获取闲置物品失败:', error);
@@ -407,6 +436,10 @@
                 }
             } catch (error) {
                 console.error('筛选物品失败:', error);
+            } finally {
+                // 隐藏加载状态，显示内容
+                loadingState.style.display = 'none';
+                marketContent.style.display = 'block';
             }
         }
         
@@ -463,7 +496,29 @@
             // 构建详情内容
             let detailContent = '';
             if (item.category) {
-                detailContent += `<p>类别：${item.category}</p>`;
+                // 类别中英文转换
+                let categoryName = item.category;
+                switch(categoryName) {
+                    case 'digital':
+                        categoryName = '数码';
+                        break;
+                    case 'clothing':
+                        categoryName = '衣物';
+                        break;
+                    case 'books':
+                        categoryName = '书籍';
+                        break;
+                    case 'home':
+                        categoryName = '家居';
+                        break;
+                    case 'recycle':
+                        categoryName = '回收';
+                        break;
+                    case 'other':
+                        categoryName = '其他';
+                        break;
+                }
+                detailContent += `<p>类别：${categoryName}</p>`;
             }
             if (item.condition) {
                 detailContent += `<p>描述：${item.condition}</p>`;
@@ -590,6 +645,11 @@
         async function purchaseProduct() {
             if (!currentProduct) return;
             
+            // 二次确认：询问用户是否确定购买
+            if (!confirm(`确定要购买「${currentProduct.name}」吗？\n\n价格：¥${currentProduct.price}\n购买后将获得 5 绿分奖励`)) {
+                return; // 用户取消购买
+            }
+            
             const purchaseBtn = document.querySelector('.modal-btn');
             const originalText = purchaseBtn.textContent;
             purchaseBtn.textContent = '购买中...';
@@ -608,10 +668,8 @@
                     throw new Error('商品不存在或已被删除');
                 }
                 
-                // 直接购买，不需要确认对话框
                 // 给购买者增加积分奖励
                 const username = localStorage.getItem('currentUsername');
-                const pointsToAdd = 5;
                 
                 // 获取用户ID
                 const { data: profileData, error: profileError } = await supabaseClient

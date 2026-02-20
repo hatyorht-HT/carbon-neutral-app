@@ -257,6 +257,15 @@
 </head>
 <body>
     <div class="container">
+        <!-- 加载状态 -->
+        <div id="loadingState" style="text-align: center; padding: 60px 20px; background-color: white; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+            <div style="font-size: 32px; margin-bottom: 16px;">🔄</div>
+            <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">加载中...</div>
+            <div style="font-size: 14px; color: var(--text-light);">正在获取实时数据</div>
+        </div>
+        
+        <!-- 主内容 -->
+        <div id="mainContent" style="display: none;">
         <div class="hero-section">
             <h1 class="hero-title">
                 <svg class="hero-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -381,6 +390,7 @@
                 </div>
             </div>
         </div>
+        </div>
     </div>
     
     <div class="toast-container" id="toastContainer"></div>
@@ -398,6 +408,65 @@
                 setTimeout(() => toast.remove(), 300);
             }, 2500);
         }
+        
+        // 获取实时数据并更新页面
+        async function fetchRealTimeData() {
+            const loadingState = document.getElementById('loadingState');
+            const mainContent = document.getElementById('mainContent');
+            
+            try {
+                // 显示加载状态
+                loadingState.style.display = 'block';
+                mainContent.style.display = 'none';
+                
+                // 1. 获取注册用户数量
+                const { count: userCount, error: usersError } = await supabaseClient
+                    .from('profiles')
+                    .select('id', { count: 'exact' });
+                
+                // 2. 获取累计发布闲置数量
+                const { count: itemCount, error: itemsError } = await supabaseClient
+                    .from('used_items')
+                    .select('id', { count: 'exact' });
+                
+                // 3. 计算累计减碳量（简单估算：每件物品减碳5kg）
+                const carbonReduction = itemCount * 5;
+                
+                // 更新页面数据
+                document.querySelector('.hero-subtitle strong:nth-child(1)').textContent = userCount.toLocaleString();
+                document.querySelector('.hero-subtitle strong:nth-child(2)').textContent = carbonReduction.toLocaleString() + ' kg';
+                
+                // 更新统计卡片
+                document.querySelector('.stats-grid .stat-card:nth-child(1) .stat-number').textContent = userCount.toLocaleString();
+                document.querySelector('.stats-grid .stat-card:nth-child(2) .stat-number').textContent = itemCount.toLocaleString();
+                document.querySelector('.stats-grid .stat-card:nth-child(3) .stat-number').textContent = carbonReduction.toLocaleString();
+                
+                // 更新轮播图数据
+                const carouselSlides = document.querySelectorAll('.carousel-slide .stat-card');
+                if (carouselSlides[0]) {
+                    carouselSlides[0].querySelector('.stat-value').textContent = itemCount.toLocaleString();
+                }
+                
+                console.log('实时数据更新成功:', {
+                    userCount,
+                    itemCount,
+                    carbonReduction
+                });
+                
+            } catch (error) {
+                console.error('获取实时数据失败:', error);
+                // 保持静态数据作为 fallback
+            } finally {
+                // 隐藏加载状态，显示主内容
+                loadingState.style.display = 'none';
+                mainContent.style.display = 'block';
+            }
+        }
+        
+        // 页面加载时获取实时数据
+        window.addEventListener('DOMContentLoaded', function() {
+            fetchRealTimeData();
+        });
     </script>
     <script src="js/auth.js"></script>
     <script src="js/script.js"></script>

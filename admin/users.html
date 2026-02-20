@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户管理 - 后台管理系统</title>
+    <script src="js/admin-utils.js"></script>
+    <style>
+        /* 复用现有 CSS 变量 */
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a0ca3;
+            --secondary: #4cc9f0;
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --danger: #f87171;
+            --light: #f9fafb;
+            --dark: #111827;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+            --border-radius: 8px;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--gray-800);
+            background-color: var(--light);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* 导航栏 */
+        .navbar {
+            background-color: var(--white, white);
+            box-shadow: var(--shadow-sm);
+            padding: 1rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .navbar-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .navbar-menu {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .navbar-link {
+            color: var(--gray-600);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+        }
+
+        .navbar-link:hover {
+            background-color: var(--gray-100);
+            color: var(--primary);
+        }
+
+        .navbar-link.active {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        /* 页面标题 */
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--gray-900);
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            font-size: 1rem;
+            color: var(--gray-600);
+        }
+
+        /* 卡片 */
+        .card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-sm);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* 搜索容器 */
+        .search-container {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .search-container .form-input {
+            flex: 1;
+        }
+
+        /* 表格 */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        th {
+            background-color: var(--gray-50);
+            font-weight: 600;
+            color: var(--gray-700);
+        }
+
+        tr:hover {
+            background-color: var(--gray-50);
+        }
+
+        /* 按钮 */
+        .btn {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            font-size: 0.875rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #34d399;
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #fca5a5;
+        }
+
+        /* 模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            width: 80%;
+            max-width: 500px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .modal-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        .modal-body {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--gray-700);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--gray-300);
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+
+        /* 通知 */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            color: white;
+            font-weight: 500;
+            z-index: 1001;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            box-shadow: var(--shadow-md);
+        }
+
+        .toast.success {
+            background-color: var(--success);
+        }
+
+        .toast.error {
+            background-color: var(--danger);
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        /* 底部导航 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: white;
+            border-top: 1px solid var(--gray-200);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 12px 0;
+            z-index: 100;
+            box-shadow: 0 -4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
+        .bottom-nav-item {
+            flex: 1;
+            text-align: center;
+            font-size: 11px;
+            color: var(--gray-600);
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px 4px;
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+        }
+
+        .bottom-nav-item.active {
+            color: var(--primary);
+        }
+
+        .bottom-nav-icon {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+                padding-bottom: 80px;
+            }
+
+            .navbar-container {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+
+            .navbar-menu {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .page-title {
+                font-size: 1.5rem;
+            }
+
+            th, td {
+                padding: 0.75rem;
+                font-size: 0.875rem;
+            }
+
+            .modal-content {
+                width: 95%;
+                margin: 20% auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="dashboard.html" class="navbar-brand">后台管理系统</a>
+            <div class="navbar-menu">
+                <a href="dashboard.html" class="navbar-link">仪表盘</a>
+                <a href="users.html" class="navbar-link active">用户管理</a>
+                <a href="items.html" class="navbar-link">物品管理</a>
+                <a href="#" id="logoutBtn" class="navbar-link">退出登录</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <h1 class="page-title">用户管理</h1>
+            <p class="page-subtitle">管理所有用户账号和积分</p>
+        </div>
+
+        <!-- 搜索栏 -->
+        <div class="card">
+            <div class="search-container">
+                <input type="text" id="searchInput" class="form-input" placeholder="按用户名或邮箱搜索用户">
+                <button id="searchBtn" class="btn btn-primary">搜索</button>
+                <button id="resetBtn" class="btn">重置</button>
+            </div>
+        </div>
+
+        <!-- 用户表格卡片 -->
+        <div class="card">
+            <div class="table-container">
+                <table id="usersTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>姓名</th>
+                            <th>邮箱</th>
+                            <th>积分</th>
+                            <th>角色</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- 用户数据将通过 JavaScript 动态填充 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 调整积分模态框 -->
+    <div id="pointsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">调整积分</h2>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label" for="userId">用户ID</label>
+                    <input type="text" id="userId" class="form-input" readonly>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="userName">用户姓名</label>
+                    <input type="text" id="userName" class="form-input" readonly>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="pointsChange">积分变动</label>
+                    <input type="number" id="pointsChange" class="form-input" placeholder="输入正数增加积分，负数减少积分">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="cancelPointsBtn" class="btn">取消</button>
+                <button id="confirmPointsBtn" class="btn btn-primary">确认调整</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 通知 -->
+    <div id="toast" class="toast"></div>
+
+    <!-- 底部导航 -->
+    <div class="bottom-nav">
+        <a href="dashboard.html" class="bottom-nav-item">
+            <div class="bottom-nav-icon">📊</div>
+            <div>仪表盘</div>
+        </a>
+        <a href="users.html" class="bottom-nav-item active">
+            <div class="bottom-nav-icon">👥</div>
+            <div>用户</div>
+        </a>
+        <a href="items.html" class="bottom-nav-item">
+            <div class="bottom-nav-icon">📦</div>
+            <div>物品</div>
+        </a>
+        <a href="settings.html" class="bottom-nav-item">
+            <div class="bottom-nav-icon">⚙️</div>
+            <div>设置</div>
+        </a>
+    </div>
+
+    <script type="module">
+        import { supabaseClient } from './supabaseClient.js'
+        import { ensureAdminAuth, adminLogout } from './js/admin-auth.js'
+
+        // 确保管理员已登录
+        await ensureAdminAuth()
+
+        // 退出登录
+        document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+            e.preventDefault()
+            await adminLogout()
+            window.location.href = 'index.html'
+        })
+
+        // 获取用户数据
+        async function fetchUsers(searchTerm = '') {
+            try {
+                let query = supabaseClient
+                    .from('profiles')
+                    .select('id, username, phone_email, points, role')
+
+                // 如果有搜索词，添加搜索条件
+                if (searchTerm) {
+                    query = query.or(`username.ilike.%${searchTerm}%,phone_email.ilike.%${searchTerm}%`)
+                }
+
+                const { data, error } = await query
+
+                if (error) {
+                    throw error
+                }
+
+                return data
+            } catch (error) {
+                console.error('获取用户数据失败:', error)
+                showToast('获取用户数据失败', 'error')
+                return []
+            }
+        }
+
+        // 渲染用户表格
+        async function renderUsersTable(searchTerm = '') {
+            const users = await fetchUsers(searchTerm)
+            const tableBody = document.querySelector('#usersTable tbody')
+            tableBody.innerHTML = ''
+
+            users.forEach(user => {
+                const row = document.createElement('tr')
+                row.innerHTML = `
+                    <td>${user.id}</td>
+                    <td>${user.username || '未设置'}</td>
+                    <td>${user.phone_email}</td>
+                    <td>${user.points || 0}</td>
+                    <td>${user.role || 'user'}</td>
+                    <td>
+                        <button class="btn btn-success" onclick="openPointsModal('${user.id}', '${user.username || '未设置'}')">调整积分</button>
+                    </td>
+                `
+                tableBody.appendChild(row)
+            })
+        }
+
+        // 打开积分调整模态框
+        window.openPointsModal = function(userId, userName) {
+            document.getElementById('userId').value = userId
+            document.getElementById('userName').value = userName
+            document.getElementById('pointsChange').value = ''
+            document.getElementById('pointsModal').style.display = 'block'
+        }
+
+        // 关闭积分调整模态框
+        document.getElementById('cancelPointsBtn').addEventListener('click', () => {
+            document.getElementById('pointsModal').style.display = 'none'
+        })
+
+        // 确认调整积分
+        document.getElementById('confirmPointsBtn').addEventListener('click', async () => {
+            const userId = document.getElementById('userId').value
+            const pointsChange = parseInt(document.getElementById('pointsChange').value)
+
+            if (isNaN(pointsChange)) {
+                showToast('请输入有效的积分变动值', 'error')
+                return
+            }
+
+            try {
+                // 根据积分变动值的正负选择不同的RPC函数
+                let rpcFunction, rpcParams
+                if (pointsChange > 0) {
+                    // 增加积分
+                    rpcFunction = 'handle_add_points'
+                    rpcParams = {
+                        amount: pointsChange,
+                        user_id: parseInt(userId)
+                    }
+                } else {
+                    // 减少积分
+                    rpcFunction = 'handle_redeem_points'
+                    rpcParams = {
+                        amount: Math.abs(pointsChange),
+                        user_id: parseInt(userId)
+                    }
+                }
+
+                // 调用 RPC 函数调整积分
+                const { data, error } = await supabaseClient.rpc(rpcFunction, rpcParams)
+
+                if (error) {
+                    throw error
+                }
+
+                showToast('积分调整成功', 'success')
+                document.getElementById('pointsModal').style.display = 'none'
+                // 重新渲染表格
+                await renderUsersTable()
+            } catch (error) {
+                console.error('调整积分失败:', error)
+                showToast('调整积分失败: ' + error.message, 'error')
+            }
+        })
+
+        // 搜索功能
+        document.getElementById('searchBtn').addEventListener('click', () => {
+            const searchTerm = document.getElementById('searchInput').value.trim()
+            renderUsersTable(searchTerm)
+        })
+
+        // 重置搜索
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            document.getElementById('searchInput').value = ''
+            renderUsersTable()
+        })
+
+        // 显示通知
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast')
+            toast.textContent = message
+            toast.className = `toast ${type} show`
+
+            setTimeout(() => {
+                toast.className = 'toast'
+            }, 3000)
+        }
+
+        // 点击模态框外部关闭
+        window.onclick = function(event) {
+            const modal = document.getElementById('pointsModal')
+            if (event.target == modal) {
+                modal.style.display = 'none'
+            }
+        }
+
+        // 初始加载用户数据
+        renderUsersTable()
+    </script>
+</body>
+</html>
