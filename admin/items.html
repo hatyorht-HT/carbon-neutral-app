@@ -409,14 +409,14 @@
 
                 // 构建操作按钮
                 let actionButtons = `
-                    <button class="btn btn-danger" onclick="deleteItem('${item.id}')">删除</button>
+                    <button class="btn btn-danger" onclick="deleteItem(${item.id})">删除</button>
                 `
 
                 // 如果状态是待审核，添加审核按钮
                 if (item.status === '待审核') {
                     actionButtons += `
-                        <button class="btn btn-success" onclick="approveItem('${item.id}')">通过</button>
-                        <button class="btn btn-warning" onclick="rejectItem('${item.id}')">驳回</button>
+                        <button class="btn btn-success" onclick="approveItem(${item.id})">通过</button>
+                        <button class="btn btn-warning" onclick="rejectItem(${item.id})">驳回</button>
                     `
                 }
 

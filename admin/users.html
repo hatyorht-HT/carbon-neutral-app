@@ -49,6 +49,7 @@
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
+            padding-bottom: 100px;
         }
 
         /* 导航栏 */
@@ -478,38 +479,14 @@
         // 确保管理员已登录
         await ensureAdminAuth()
 
-        // 退出登录
-        document.getElementById('logoutBtn').addEventListener('click', async (e) => {
-            e.preventDefault()
-            await adminLogout()
-            window.location.href = 'index.html'
-        })
-
-        // 获取用户数据
-        async function fetchUsers(searchTerm = '') {
-            try {
-                let query = supabaseClient
-                    .from('profiles')
-                    .select('id, username, phone_email, points, role')
-
-                // 如果有搜索词，添加搜索条件
-                if (searchTerm) {
-                    query = query.or(`username.ilike.%${searchTerm}%,phone_email.ilike.%${searchTerm}%`)
-                }
-
-                const { data, error } = await query
-
-                if (error) {
-                    throw error
-                }
-
-                return data
-            } catch (error) {
-                console.error('获取用户数据失败:', error)
-                showToast('获取用户数据失败', 'error')
-                return []
-            }
-        }
+        // 1. 修复函数挂载（作用域问题）
+        // 确保openPointsModal函数被明确定义为window.openPointsModal
+        window.openPointsModal = function(userId, userName) {
+            document.getElementById('userId').value = userId;
+            document.getElementById('userName').value = userName;
+            document.getElementById('pointsChange').value = '';
+            document.getElementById('pointsModal').style.display = 'block';
+        };
 
         // 渲染用户表格
         async function renderUsersTable(searchTerm = '') {
@@ -519,112 +496,134 @@
 
             users.forEach(user => {
                 const row = document.createElement('tr')
+                // 确保传递表格中渲染出来的数字ID，而不是UUID
                 row.innerHTML = `
                     <td>${user.id}</td>
                     <td>${user.username || '未设置'}</td>
                     <td>${user.phone_email}</td>
-                    <td>${user.points || 0}</td>
+                    <td><b style="color:var(--primary)">${user.points || 0}</b></td>
                     <td>${user.role || 'user'}</td>
                     <td>
-                        <button class="btn btn-success" onclick="openPointsModal('${user.id}', '${user.username || '未设置'}')">调整积分</button>
+                        <button class="btn btn-success"
+                            onclick="window.openPointsModal(Number('${user.id}'), '${user.username || '未设置'}')">
+                            调整积分
+                        </button>
                     </td>
                 `
                 tableBody.appendChild(row)
             })
         }
 
-        // 打开积分调整模态框
-        window.openPointsModal = function(userId, userName) {
-            document.getElementById('userId').value = userId
-            document.getElementById('userName').value = userName
-            document.getElementById('pointsChange').value = ''
-            document.getElementById('pointsModal').style.display = 'block'
-        }
-
-        // 关闭积分调整模态框
+        // 取消调整积分
         document.getElementById('cancelPointsBtn').addEventListener('click', () => {
-            document.getElementById('pointsModal').style.display = 'none'
-        })
+            document.getElementById('pointsModal').style.display = 'none';
+        });
 
-        // 确认调整积分
+        // 确认调整积分逻辑
         document.getElementById('confirmPointsBtn').addEventListener('click', async () => {
-            const userId = document.getElementById('userId').value
-            const pointsChange = parseInt(document.getElementById('pointsChange').value)
+            const userIdInput = document.getElementById('userId').value;
+            const pointsChangeInput = document.getElementById('pointsChange').value;
+            
+            // 1. 严格类型转换
+            const userId = Number(userIdInput);
+            const pointsChange = Number(pointsChangeInput);
+            const confirmBtn = document.getElementById('confirmPointsBtn');
 
-            if (isNaN(pointsChange)) {
-                showToast('请输入有效的积分变动值', 'error')
-                return
+            if (isNaN(userId) || isNaN(pointsChange)) {
+                showToast('请输入有效的数字', 'error');
+                return;
             }
 
             try {
-                // 根据积分变动值的正负选择不同的RPC函数
-                let rpcFunction, rpcParams
-                if (pointsChange > 0) {
-                    // 增加积分
-                    rpcFunction = 'handle_add_points'
-                    rpcParams = {
-                        amount: pointsChange,
-                        user_id: parseInt(userId)
-                    }
-                } else {
-                    // 减少积分
-                    rpcFunction = 'handle_redeem_points'
-                    rpcParams = {
-                        amount: Math.abs(pointsChange),
-                        user_id: parseInt(userId)
-                    }
+                confirmBtn.disabled = true;
+                confirmBtn.textContent = '提交中...';
+
+                // 2. 先查询当前积分
+                const { data: profile, error: fetchError } = await supabaseClient
+                    .from('profiles')
+                    .select('points')
+                    .eq('id', userId)
+                    .single();
+
+                if (fetchError) throw new Error('获取用户积分失败');
+
+                const newPoints = (profile.points || 0) + pointsChange;
+
+                // 3. 执行更新并使用 .select() 校验 RLS 权限
+                const { data, error: updateError } = await supabaseClient
+                    .from('profiles')
+                    .update({ points: newPoints })
+                    .eq('id', userId)
+                    .select(); // 必须 select 以触发结果校验
+
+                if (updateError) throw updateError;
+
+                // RLS 拦截判定：请求成功 (200) 但受影响行数为 0 (data 为空)
+                if (!data || data.length === 0) {
+                    // 如果 update 成功但 data 为空，说明 RLS 策略禁止修改此行
+                    throw new Error('权限不足：数据库 RLS 拒绝更新。请检查您的管理员角色是否已在 profiles 表中正确设置。');
                 }
 
-                // 调用 RPC 函数调整积分
-                const { data, error } = await supabaseClient.rpc(rpcFunction, rpcParams)
+                showToast(`成功！当前积分: ${data[0].points}`, 'success');
+                document.getElementById('pointsModal').style.display = 'none';
+                await renderUsersTable();
 
-                if (error) {
-                    throw error
-                }
-
-                showToast('积分调整成功', 'success')
-                document.getElementById('pointsModal').style.display = 'none'
-                // 重新渲染表格
-                await renderUsersTable()
             } catch (error) {
-                console.error('调整积分失败:', error)
-                showToast('调整积分失败: ' + error.message, 'error')
+                console.error('调整失败:', error);
+                // 增加针对类型错误和 RLS 错误的特殊提示
+                const hint = error.message.includes('RLS') ? ' [提示：请在 SQL 编辑器运行 RLS 修复脚本]' : '';
+                const msg = error.code === '22P02' ? '数据库类型冲突，请检查 ID 格式' : error.message;
+                showToast(msg + hint, 'error');
+            } finally {
+                confirmBtn.disabled = false;
+                confirmBtn.textContent = '确认调整';
             }
-        })
+        });
 
-        // 搜索功能
-        document.getElementById('searchBtn').addEventListener('click', () => {
-            const searchTerm = document.getElementById('searchInput').value.trim()
-            renderUsersTable(searchTerm)
-        })
+        // 获取用户数据
+        async function fetchUsers(searchTerm = '') {
+            try {
+                let query = supabaseClient
+                    .from('profiles')
+                    .select('id, username, phone_email, points, role')
 
-        // 重置搜索
-        document.getElementById('resetBtn').addEventListener('click', () => {
-            document.getElementById('searchInput').value = ''
-            renderUsersTable()
-        })
+                if (searchTerm) {
+                    query = query.or(`username.ilike.%${searchTerm}%,phone_email.ilike.%${searchTerm}%`)
+                }
 
-        // 显示通知
+                const { data, error } = await query
+                if (error) throw error
+                return data
+            } catch (error) {
+                showToast('加载失败', 'error')
+                return []
+            }
+        }
+
+        // 搜索与重置按钮绑定
+        document.getElementById('searchBtn').onclick = () => renderUsersTable(document.getElementById('searchInput').value.trim());
+        document.getElementById('resetBtn').onclick = () => {
+            document.getElementById('searchInput').value = '';
+            renderUsersTable();
+        };
+
+        // 退出登录
+        document.getElementById('logoutBtn').onclick = async (e) => {
+            e.preventDefault();
+            await adminLogout();
+            window.location.href = 'index.html';
+        };
+
+        // 初始渲染
+        renderUsersTable()
+
+        // 辅助函数：Toast
         function showToast(message, type = 'success') {
             const toast = document.getElementById('toast')
             toast.textContent = message
             toast.className = `toast ${type} show`
-
-            setTimeout(() => {
-                toast.className = 'toast'
-            }, 3000)
+            setTimeout(() => toast.className = 'toast', 3000)
         }
-
-        // 点击模态框外部关闭
-        window.onclick = function(event) {
-            const modal = document.getElementById('pointsModal')
-            if (event.target == modal) {
-                modal.style.display = 'none'
-            }
-        }
-
-        // 初始加载用户数据
-        renderUsersTable()
     </script>
 </body>
 </html>

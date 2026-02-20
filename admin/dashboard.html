@@ -298,7 +298,7 @@
                 <div class="stat-value" id="totalPoints">0</div>
                 <div class="stat-label">总积分</div>
             </div>
-            <div class="stat-card">
+            <div class="stat-card" title="今日活动包括：新用户注册和新发布的闲置物品">
                 <div class="stat-icon">📈</div>
                 <div class="stat-value" id="todayActivities">0</div>
                 <div class="stat-label">今日活动</div>
@@ -408,8 +408,26 @@
                     document.getElementById('totalPoints').textContent = totalPoints
                 }
 
-                // 模拟今日活动数
-                document.getElementById('todayActivities').textContent = Math.floor(Math.random() * 10) + 1
+                // 获取今日活动数
+                const today = new Date().toISOString().split('T')[0];
+                const { data: todayItems, error: todayItemsError } = await supabaseClient
+                    .from('used_items')
+                    .select('id')
+                    .gte('created_at', today);
+                
+                const { data: todayProfiles, error: todayProfilesError } = await supabaseClient
+                    .from('profiles')
+                    .select('id')
+                    .gte('created_at', today);
+                
+                // 注释掉对 purchases 表的查询，因为数据库中可能不存在这个表
+                // const { data: todayPurchases, error: todayPurchasesError } = await supabaseClient
+                //     .from('purchases')
+                //     .select('id')
+                //     .gte('created_at', today);
+                
+                const todayActivitiesCount = (todayItems?.length || 0) + (todayProfiles?.length || 0);
+                document.getElementById('todayActivities').textContent = todayActivitiesCount;
             } catch (error) {
                 console.error('加载统计数据失败:', error)
             }
