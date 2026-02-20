@@ -256,7 +256,9 @@
                     usedItems.forEach(item => {
                         const card = document.createElement('div');
                         card.className = 'market-card';
-                        card.onclick = () => openModal(item);
+                        card.onclick = () => purchaseProductDirect(item);
+                        card.style.cursor = 'pointer';
+                        card.title = '点击直接购买';
                         
                         // 处理图片显示
                         let imageHtml = '📷';
@@ -502,6 +504,88 @@
             document.getElementById('productModal').style.display = 'none';
         }
         
+        // 直接购买商品（点击卡片直接购买）
+        async function purchaseProductDirect(item) {
+            const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+            if (!isLoggedIn) {
+                alert('请先登录后再购买商品');
+                return;
+            }
+            
+            try {
+                // 判断商品是否已售
+                const { data: checkData, error: checkError } = await supabaseClient
+                    .from('used_items')
+                    .select('id')
+                    .eq('id', item.id)
+                    .single();
+                
+                if (checkError || !checkData) {
+                    throw new Error('商品不存在或已被删除');
+                }
+                
+                // 给购买者增加积分奖励
+                const username = localStorage.getItem('currentUsername');
+                
+                // 获取用户ID
+                const { data: profileData, error: profileError } = await supabaseClient
+                    .from('profiles')
+                    .select('id')
+                    .eq('username', username)
+                    .single();
+                
+                if (profileError) {
+                    console.error('获取用户ID失败:', profileError);
+                    throw new Error('获取用户ID失败');
+                }
+                
+                // 使用 parseInt() 显式将 profileData.id 转换为整数类型
+                const userId = parseInt(profileData?.id);
+                
+                // 使用 RPC 调用 handle_add_points 增加积分
+                const { error: rpcError } = await supabaseClient.rpc('handle_add_points', { 
+                    user_id: userId, 
+                    amount: 5 
+                });
+                
+                if (rpcError) {
+                    console.error('RPC 调用失败:', rpcError);
+                    throw new Error('积分更新失败');
+                }
+                
+                // 更新 localStorage 中的 userPoints
+                const { data: newProfileData } = await supabaseClient
+                    .from('profiles')
+                    .select('points')
+                    .eq('username', username)
+                    .single();
+                
+                if (newProfileData) {
+                    localStorage.setItem('userPoints', newProfileData.points);
+                    console.log('积分更新成功，当前积分:', newProfileData.points);
+                }
+                
+                // 从数据库中删除该商品
+                const { error: deleteError } = await supabaseClient
+                    .from('used_items')
+                    .delete()
+                    .eq('id', item.id);
+                
+                if (deleteError) {
+                    console.error('删除商品失败:', deleteError);
+                    throw new Error('删除商品失败');
+                }
+                
+                // 刷新市场列表
+                await loadUsedItems();
+                
+                alert('感谢参与绿色循环，获得 5 绿分奖励！');
+            } catch (error) {
+                console.error('购买商品失败:', error);
+                alert(error.message || '购买失败，请稍后重试');
+            }
+        }
+        
         // 购买商品
         async function purchaseProduct() {
             if (!currentProduct) return;
@@ -513,40 +597,78 @@
             purchaseBtn.classList.add('btn-loading');
             
             try {
-                // 确认购买
-                if (confirm(`确认花费 ¥${currentProduct.price || 0} 购买此商品？`)) {
-                    // 给购买者增加积分奖励
-                    const username = localStorage.getItem('username') || '林小绿';
-                    const pointsToAdd = 5;
-                    
-                    // 更新用户积分
-                    const { error: pointsError } = await supabaseClient
-                        .from('profiles')
-                        .update({ points: supabaseClient.raw(`points + ${pointsToAdd}`) })
-                        .eq('username', username);
-                    
-                    if (pointsError) {
-                        throw pointsError;
-                    }
-                    
-                    // 从数据库中删除该商品
-                    const { error: deleteError } = await supabaseClient
-                        .from('used_items')
-                        .delete()
-                        .eq('id', currentProduct.id);
-                    
-                    if (deleteError) {
-                        throw deleteError;
-                    }
-                    
-                    // 刷新市场列表
-                    await loadUsedItems();
-                    
-                    alert('购买成功！获得5积分');
+                // 判断商品是否已售
+                const { data: checkData, error: checkError } = await supabaseClient
+                    .from('used_items')
+                    .select('id')
+                    .eq('id', currentProduct.id)
+                    .single();
+                
+                if (checkError || !checkData) {
+                    throw new Error('商品不存在或已被删除');
                 }
+                
+                // 直接购买，不需要确认对话框
+                // 给购买者增加积分奖励
+                const username = localStorage.getItem('currentUsername');
+                const pointsToAdd = 5;
+                
+                // 获取用户ID
+                const { data: profileData, error: profileError } = await supabaseClient
+                    .from('profiles')
+                    .select('id')
+                    .eq('username', username)
+                    .single();
+                
+                if (profileError) {
+                    console.error('获取用户ID失败:', profileError);
+                    throw new Error('获取用户ID失败');
+                }
+                
+                // 使用 parseInt() 显式将 profileData.id 转换为整数类型
+                const userId = parseInt(profileData?.id);
+                
+                // 使用 RPC 调用 handle_add_points 增加积分
+                const { error: rpcError } = await supabaseClient.rpc('handle_add_points', { 
+                    user_id: userId, 
+                    amount: 5 
+                });
+                
+                if (rpcError) {
+                    console.error('RPC 调用失败:', rpcError);
+                    throw new Error('积分更新失败');
+                }
+                
+                // 更新 localStorage 中的 userPoints
+                const { data: newProfileData } = await supabaseClient
+                    .from('profiles')
+                    .select('points')
+                    .eq('username', username)
+                    .single();
+                
+                if (newProfileData) {
+                    localStorage.setItem('userPoints', newProfileData.points);
+                    console.log('积分更新成功，当前积分:', newProfileData.points);
+                }
+                
+                // 从数据库中删除该商品
+                const { error: deleteError } = await supabaseClient
+                    .from('used_items')
+                    .delete()
+                    .eq('id', currentProduct.id);
+                
+                if (deleteError) {
+                    console.error('删除商品失败:', deleteError);
+                    throw new Error('删除商品失败');
+                }
+                
+                // 刷新市场列表
+                await loadUsedItems();
+                
+                alert('感谢参与绿色循环，获得 5 绿分奖励！');
             } catch (error) {
                 console.error('购买商品失败:', error);
-                alert('购买失败，请稍后重试');
+                alert(error.message || '购买失败，请稍后重试');
             } finally {
                 closeModal();
                 purchaseBtn.textContent = originalText;

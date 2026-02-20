@@ -13,26 +13,51 @@
         .hero-section {
             padding: 32px 16px;
             text-align: center;
-            background: linear-gradient(135deg, #e8f5e9 0%, #ffffff 100%);
-            border-radius: 0 0 24px 24px;
+            background: linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 50%, #ffffff 100%);
+            border-radius: 0 0 32px 32px;
             margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, var(--primary-glow) 0%, transparent 70%);
+            border-radius: 50%;
         }
         
         .hero-title {
-            font-size: 28px;
-            font-weight: 600;
-            color: #2e7d32;
+            font-size: 26px;
+            font-weight: 700;
+            color: #166534;
             margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .hero-icon {
+            width: 32px;
+            height: 32px;
+            color: var(--primary);
         }
         
         .hero-subtitle {
-            font-size: 16px;
-            color: #666;
+            font-size: 15px;
+            color: #475569;
             margin-bottom: 24px;
+            line-height: 1.6;
         }
         
         .hero-subtitle strong {
-            color: #2e7d32;
+            color: #166534;
+            font-weight: 600;
         }
         
         .stats-grid {
@@ -44,67 +69,158 @@
         
         .stat-card {
             flex: 1;
-            background: white;
-            border-radius: 12px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
             padding: 16px 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            box-shadow: var(--shadow-sm);
             text-align: center;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: all var(--transition-base);
+            cursor: pointer;
         }
         
         .stat-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .stat-card:active {
+            transform: translateY(-2px) scale(0.98);
         }
         
         .stat-icon {
-            display: block;
-            font-size: 32px;
-            margin-bottom: 8px;
+            width: 32px;
+            height: 32px;
+            margin: 0 auto 8px;
+            color: var(--primary);
         }
         
         .stat-number {
             display: block;
             font-size: 20px;
-            font-weight: bold;
-            color: #2e7d32;
+            font-weight: 700;
+            color: #166534;
             line-height: 1.2;
             margin-bottom: 4px;
+            letter-spacing: -0.02em;
         }
         
         .stat-label {
-            font-size: 12px;
-            color: #999;
+            font-size: 11px;
+            color: #64748b;
+            font-weight: 500;
         }
         
         .hero-btn {
-            display: inline-block;
-            background: #2ecc71;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             color: white;
-            padding: 14px 32px;
-            border-radius: 30px;
-            font-size: 16px;
-            font-weight: 500;
+            padding: 14px 28px;
+            border-radius: 50px;
+            font-size: 15px;
+            font-weight: 600;
             text-decoration: none;
             margin-bottom: 12px;
-            transition: background-color 0.2s, transform 0.2s;
+            box-shadow: var(--shadow-md), 0 4px 20px var(--primary-glow);
+            transition: all var(--transition-base);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .hero-btn:hover::before {
+            left: 100%;
         }
         
         .hero-btn:hover {
-            background: #27ae60;
             transform: translateY(-2px);
+            box-shadow: var(--shadow-lg), 0 8px 24px var(--primary-glow);
+        }
+        
+        .hero-btn:active {
+            transform: translateY(0) scale(0.98);
         }
         
         .hero-note {
             font-size: 12px;
-            color: #999;
+            color: #94a3b8;
             margin: 0;
         }
         
-        /* 响应式设计 */
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .section-title-icon {
+            width: 20px;
+            height: 20px;
+            color: var(--primary);
+        }
+        
+        .product-image {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            padding: 20px;
+        }
+        
+        .product-image svg {
+            width: 48px;
+            height: 48px;
+            color: var(--primary);
+        }
+        
+        .product-info {
+            padding: 0 4px 8px;
+        }
+        
+        .product-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 6px;
+        }
+        
+        .product-points {
+            font-size: 14px;
+            color: var(--primary);
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        
+        .product-count {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        
         @media (max-width: 600px) {
             .hero-title {
-                font-size: 24px;
+                font-size: 22px;
             }
             
             .hero-subtitle {
@@ -120,7 +236,8 @@
             }
             
             .stat-icon {
-                font-size: 24px;
+                width: 24px;
+                height: 24px;
             }
             
             .stat-number {
@@ -128,11 +245,11 @@
             }
             
             .stat-label {
-                font-size: 11px;
+                font-size: 10px;
             }
             
             .hero-btn {
-                padding: 12px 24px;
+                padding: 12px 20px;
                 font-size: 14px;
             }
         }
@@ -140,34 +257,63 @@
 </head>
 <body>
     <div class="container">
-        <!-- 顶部英雄区域 -->
         <div class="hero-section">
-            <h1 class="hero-title">🌱 stu校园碳减排</h1>
+            <h1 class="hero-title">
+                <svg class="hero-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M7 20h10"/>
+                    <path d="M10 20c5.5-2.5.8-6.4 3-10"/>
+                    <path d="M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z"/>
+                    <path d="M14.1 6a7 7 0 0 0-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z"/>
+                </svg>
+                stu校园碳减排
+            </h1>
             <p class="hero-subtitle">已有 <strong>1,234</strong> 位校友加入，共同减碳 <strong>75,000 kg</strong></p>
             
             <div class="stats-grid">
                 <div class="stat-card">
-                    <span class="stat-icon">👥</span>
+                    <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                    </svg>
                     <span class="stat-number">1,234</span>
                     <span class="stat-label">注册用户</span>
                 </div>
                 <div class="stat-card">
-                    <span class="stat-icon">📦</span>
+                    <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m7.5 4.27 9 5.15"/>
+                        <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/>
+                        <path d="m3.3 7 8.7 5 8.7-5"/>
+                        <path d="M12 22V12"/>
+                    </svg>
                     <span class="stat-number">158</span>
                     <span class="stat-label">累计发布闲置</span>
                 </div>
                 <div class="stat-card">
-                    <span class="stat-icon">🏆</span>
+                    <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/>
+                        <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
+                        <path d="M4 22h16"/>
+                        <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/>
+                        <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/>
+                        <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>
+                    </svg>
                     <span class="stat-number">75,000</span>
                     <span class="stat-label">累计减碳量</span>
                 </div>
             </div>
             
-            <a href="recycle.html" class="hero-btn">发布闲置，赚积分 →</a>
+            <a href="recycle.html" class="hero-btn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 5v14"/>
+                    <path d="M5 12h14"/>
+                </svg>
+                发布闲置，赚积分
+            </a>
             <p class="hero-note">每发布一件闲置，平台额外奖励10积分</p>
         </div>
         
-        <!-- 轮播广告区域 -->
         <div class="carousel-container">
             <div class="carousel-wrapper" id="carouselWrapper">
                 <div class="carousel-slide">
@@ -199,19 +345,35 @@
             </div>
         </div>
         
-        <!-- 热门兑换 -->
-        <h2>热门兑换</h2>
+        <h2 class="section-title">
+            <svg class="section-title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 17.8 5.8 21 7 14.1 2 9.3l7-1L12 2"/>
+            </svg>
+            热门兑换
+        </h2>
         <div class="product-grid">
-            <div class="product-card" onclick="alert('前往商品详情（积分：15）')">
-                <div class="product-image">🛍️</div>
+            <div class="product-card" onclick="showToast('前往商品详情', 'success')">
+                <div class="product-image">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/>
+                        <path d="M3 6h18"/>
+                        <path d="M16 10a4 4 0 0 1-8 0"/>
+                    </svg>
+                </div>
                 <div class="product-info">
                     <div class="product-name">再生帆布手提袋</div>
                     <div class="product-points">15积分</div>
                     <div class="product-count">1,235人已兑换</div>
                 </div>
             </div>
-            <div class="product-card" onclick="alert('前往商品详情（积分：10）')">
-                <div class="product-image">🍽️</div>
+            <div class="product-card" onclick="showToast('前往商品详情', 'success')">
+                <div class="product-image">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/>
+                        <path d="M7 2v20"/>
+                        <path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/>
+                    </svg>
+                </div>
                 <div class="product-info">
                     <div class="product-name">竹制餐具套装</div>
                     <div class="product-points">10积分</div>
@@ -221,6 +383,22 @@
         </div>
     </div>
     
+    <div class="toast-container" id="toastContainer"></div>
+    
+    <script>
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            const icon = type === 'success' ? '✓' : type === 'error' ? '✕' : 'ℹ';
+            toast.innerHTML = `<span class="toast-icon">${icon}</span><span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.add('toast-out');
+                setTimeout(() => toast.remove(), 300);
+            }, 2500);
+        }
+    </script>
     <script src="js/auth.js"></script>
     <script src="js/script.js"></script>
     <script src="js/footer.js"></script>

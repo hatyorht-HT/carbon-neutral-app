@@ -142,7 +142,7 @@
         <!-- 我的绿分余额 -->
         <div class="card">
             <h2>我的绿分余额</h2>
-            <div style="font-size: 24px; font-weight: 700; margin: 12px 0;">1,250 积分</div>
+            <div id="userPointsDisplay" style="font-size: 24px; font-weight: 700; margin: 12px 0;">1,250 积分</div>
             <button class="get-more" style="background: none; border: none; color: #2ecc71; font-size: 14px; cursor: pointer;" onclick="alert('获取更多积分功能开发中')">获取更多 →</button>
         </div>
         
@@ -200,7 +200,7 @@
         
         // 从数据库获取用户积分
         async function fetchUserPoints() {
-            const username = localStorage.getItem('username');
+            const username = localStorage.getItem('currentUsername');
             if (!username) return 0;
             
             try {
@@ -225,7 +225,7 @@
         // 更新积分显示
         async function updatePointsDisplay() {
             const points = await fetchUserPoints();
-            const pointsElement = document.querySelector('.card div[style*="font-size: 24px"]');
+            const pointsElement = document.getElementById('userPointsDisplay');
             if (pointsElement) {
                 pointsElement.textContent = points.toLocaleString() + ' 积分';
             }
@@ -330,33 +330,75 @@
             exchangeBtn.classList.add('btn-loading');
             
             try {
-                // 获取当前积分余额
-                const currentPoints = await fetchUserPoints();
-                const productPoints = currentProduct.points;
-                
-                if (currentPoints >= productPoints) {
-                    // 扣除积分
-                    const username = localStorage.getItem('username') || '林小绿';
-                    
-                    const { error: updateError } = await supabaseClient
-                        .from('profiles')
-                        .update({ points: supabaseClient.raw(`points - ${productPoints}`) })
-                        .eq('username', username);
-                    
-                    if (updateError) {
-                        throw updateError;
-                    }
-                    
-                    // 更新页面上的积分余额
-                    await updatePointsDisplay();
-                    
-                    alert('兑换成功，已扣除' + productPoints + '积分');
-                } else {
-                    alert('积分不足，无法兑换此商品');
+                const username = localStorage.getItem('currentUsername');
+                if (!username) {
+                    throw new Error('请先登录');
                 }
+                
+                // 获取用户ID
+                const { data: profileData, error: profileError } = await supabaseClient
+                    .from('profiles')
+                    .select('id')
+                    .eq('username', username)
+                    .single();
+                
+                if (profileError) {
+                    console.error('获取用户ID失败:', profileError);
+                    throw new Error('获取用户ID失败');
+                }
+                
+                // 使用 parseInt() 显式将 profileData.id 转换为整数类型（因为数据库 ID 是 int8 类型，不是 UUID）
+                const userId = parseInt(profileData?.id);
+                const giftPrice = currentProduct.points;
+                
+                console.log('准备调用 RPC 扣分:', { userId, giftPrice, userIdType: typeof userId });
+                
+                // 确保 RPC 参数对象为 { user_id: userId, price: giftPrice }（参数名必须叫 price）
+                const { data, error: rpcError } = await supabaseClient.rpc('handle_redeem_points', { 
+                    user_id: userId, 
+                    price: giftPrice 
+                });
+                
+                if (rpcError) {
+                    console.error('RPC 调用失败:', rpcError);
+                    throw new Error('积分操作失败: ' + rpcError.message);
+                }
+                
+                console.log('RPC 调用返回:', data);
+                
+                // 因为现在函数返回 boolean，代码应通过 if (data === true) 来判断是否兑换成功
+                if (data !== true) {
+                    alert('积分不足');
+                    return;
+                }
+                
+                // 扣分成功后，更新本地 localStorage 中的 userPoints 并刷新 UI 显示
+                const { data: newProfileData } = await supabaseClient
+                    .from('profiles')
+                    .select('points')
+                    .eq('username', username)
+                    .single();
+                
+                if (newProfileData) {
+                    localStorage.setItem('userPoints', newProfileData.points);
+                    console.log('积分更新成功，当前积分:', newProfileData.points);
+                    
+                    // 如果页面有 id="userPointsDisplay" 的元素，请实时刷新显示的数值
+                    const userPointsDisplay = document.getElementById('userPointsDisplay');
+                    if (userPointsDisplay) {
+                        userPointsDisplay.textContent = newProfileData.points.toLocaleString() + ' 积分';
+                    }
+                }
+                
+                // 弹出"兑换成功"提示
+                alert('兑换成功');
+                
+                // 更新页面上的积分余额
+                await updatePointsDisplay();
+                
             } catch (error) {
                 console.error('兑换商品失败:', error);
-                alert('兑换失败，请稍后重试');
+                alert(error.message || '兑换失败，请稍后重试');
             } finally {
                 closeModal();
                 exchangeBtn.textContent = originalText;

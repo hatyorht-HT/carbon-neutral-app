@@ -15,21 +15,40 @@
         }
         
         .photo-preview {
-            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
-            backdrop-filter: blur(10px);
-            border: 2px dashed #4caf50;
-            border-radius: 16px;
-            padding: 48px 16px;
+            background: linear-gradient(135deg, rgba(240, 253, 244, 0.9), rgba(220, 252, 231, 0.9));
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 3px dashed #4caf50;
+            border-radius: 20px;
+            padding: 60px 20px;
             text-align: center;
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
             position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(76, 175, 80, 0.1);
+        }
+        
+        .photo-preview::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(76, 175, 80, 0.1), transparent);
+            transition: left 0.6s ease;
+        }
+        
+        .photo-preview:hover::before {
+            left: 100%;
         }
         
         .photo-preview.dragover {
             border-color: #2e7d32;
-            background: linear-gradient(135deg, #dcfce7, #bbf7d0);
-            box-shadow: 0 4px 16px rgba(76, 175, 80, 0.2);
+            background: linear-gradient(135deg, rgba(220, 252, 231, 0.95), rgba(187, 247, 208, 0.95));
+            box-shadow: 0 8px 32px rgba(76, 175, 80, 0.3);
+            transform: translateY(-2px);
         }
         
         .photo-preview.loading {
@@ -42,12 +61,13 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 40px;
-            height: 40px;
+            width: 50px;
+            height: 50px;
             border: 4px solid rgba(76, 175, 80, 0.2);
             border-top: 4px solid #4caf50;
             border-radius: 50%;
             animation: spin 1s linear infinite;
+            box-shadow: 0 0 20px rgba(76, 175, 80, 0.3);
         }
         
         @keyframes spin {
@@ -57,11 +77,13 @@
         
         .photo-preview:hover {
             border-color: #2e7d32;
-            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.15);
+            box-shadow: 0 8px 32px rgba(76, 175, 80, 0.25);
+            transform: translateY(-4px);
         }
         
         .preview-content {
             position: relative;
+            z-index: 1;
         }
         
         .image-container {
@@ -71,12 +93,18 @@
         
         .upload-icon {
             color: #4caf50;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+        }
+        
+        .photo-preview:hover .upload-icon {
+            transform: scale(1.1);
         }
         
         .photo-preview.has-image {
             border-style: solid;
-            padding: 16px;
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(240, 253, 244, 0.9));
         }
         
         .photo-preview.has-image .image-container {
@@ -86,58 +114,94 @@
         
         .photo-preview.has-image img {
             max-width: 100%;
-            max-height: 300px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            max-height: 320px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            transition: transform 0.3s ease;
+        }
+        
+        .photo-preview.has-image:hover img {
+            transform: scale(1.02);
         }
         
         .delete-btn {
             position: absolute;
-            top: -10px;
-            right: -10px;
-            background-color: #f44336;
+            top: -12px;
+            right: -12px;
+            background: linear-gradient(135deg, #f44336, #d32f2f);
             color: white;
             border: none;
             border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            font-size: 16px;
+            width: 36px;
+            height: 36px;
+            font-size: 18px;
             font-weight: bold;
             cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            transition: background-color 0.2s ease;
+            box-shadow: 0 4px 12px rgba(244, 67, 54, 0.4);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .delete-btn:hover {
-            background-color: #d32f2f;
+            background: linear-gradient(135deg, #d32f2f, #b71c1c);
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(244, 67, 54, 0.5);
+        }
+        
+        .delete-btn:active {
+            transform: scale(0.95);
         }
         
         .upload-btn {
-            background-color: #4caf50;
+            background: linear-gradient(135deg, #4caf50, #2e7d32);
             color: white;
             border: none;
-            border-radius: 8px;
-            padding: 12px 24px;
+            border-radius: 12px;
+            padding: 16px 32px;
             font-size: 16px;
-            font-weight: 500;
+            font-weight: 600;
             cursor: pointer;
-            transition: background-color 0.2s ease, transform 0.2s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 16px rgba(76, 175, 80, 0.3);
+            min-height: 52px;
+            width: 100%;
+            max-width: 240px;
+            letter-spacing: 0.02em;
         }
         
         .upload-btn:hover {
-            background-color: #2e7d32;
-            transform: translateY(-2px);
+            background: linear-gradient(135deg, #2e7d32, #1b5e20);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(76, 175, 80, 0.4);
+        }
+        
+        .upload-btn:active {
+            transform: translateY(-1px) scale(0.98);
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-15px);
+            }
+            100% {
+                transform: translateY(0px);
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>发布绿色闲置</h1>
+        <h1 style="font-size: 28px; font-weight: 700; color: var(--text-dark); margin-bottom: 20px; text-align: center; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); letter-spacing: -0.02em;">发布绿色闲置</h1>
         
         <!-- 页面副标题 -->
-        <div class="card" style="background-color: #f0fdf4; margin-bottom: 24px;">
-            <h3>上传你的闲置，助力碳减排</h3>
-            <p style="color: #666; font-size: 14px; margin-top: 8px;">你的每一次回收都在守护地球。</p>
+        <div class="card" style="background: linear-gradient(135deg, #f0fdf4, #dcfce7); margin-bottom: 32px; padding: 24px; text-align: center; border: 1px solid #bbf7d0; box-shadow: 0 4px 20px rgba(76, 175, 80, 0.15);">
+            <h3 style="font-size: 20px; font-weight: 600; color: var(--text-dark); margin-bottom: 12px;">上传你的闲置，助力碳减排</h3>
+            <p style="color: #64748b; font-size: 16px; margin-top: 0; line-height: 1.5;">你的每一次回收都在守护地球，为可持续发展贡献力量。</p>
         </div>
         
         <!-- 已登录状态内容 -->
@@ -158,12 +222,12 @@
             </div>
             
             <!-- 表单 -->
-            <div class="card">
-                <h3>物品名称</h3>
-                <input type="text" id="itemName" placeholder="例如：中古玻璃瓶">
+            <div class="card" style="background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(248, 250, 252, 0.9)); padding: 24px;">
+                <h3 style="margin-bottom: 16px; color: var(--text-dark); font-size: 18px; font-weight: 600;">物品名称</h3>
+                <input type="text" id="itemName" placeholder="例如：中古玻璃瓶" style="border: 2px solid #e2e8f0; border-radius: 12px; padding: 16px; font-size: 16px; margin-bottom: 20px; transition: all 0.3s ease;">
                 
-                <h3>类别选择</h3>
-                <select id="itemCategory">
+                <h3 style="margin-bottom: 16px; color: var(--text-dark); font-size: 18px; font-weight: 600;">类别选择</h3>
+                <select id="itemCategory" style="border: 2px solid #e2e8f0; border-radius: 12px; padding: 16px; font-size: 16px; margin-bottom: 20px; transition: all 0.3s ease;">
                     <option value="">选择类别</option>
                     <option value="digital">数码</option>
                     <option value="clothing">衣物</option>
@@ -171,30 +235,33 @@
                     <option value="other">其他</option>
                 </select>
                 
-                <h3>产品状况</h3>
-                <input type="text" id="itemCondition" placeholder="请描述物品的新旧程度和使用状况，例如：九成新，无划痕">
+                <h3 style="margin-bottom: 16px; color: var(--text-dark); font-size: 18px; font-weight: 600;">产品状况</h3>
+                <input type="text" id="itemCondition" placeholder="请描述物品的新旧程度和使用状况，例如：九成新，无划痕" style="border: 2px solid #e2e8f0; border-radius: 12px; padding: 16px; font-size: 16px; margin-bottom: 20px; transition: all 0.3s ease;">
                 
-                <h3>价格（元）</h3>
-                <input type="number" id="itemPrice" placeholder="例如 20" min="0" step="1" required>
+                <h3 style="margin-bottom: 16px; color: var(--text-dark); font-size: 18px; font-weight: 600;">价格（元）</h3>
+                <input type="number" id="itemPrice" placeholder="例如 20" min="0" step="1" required style="border: 2px solid #e2e8f0; border-radius: 12px; padding: 16px; font-size: 16px; margin-bottom: 20px; transition: all 0.3s ease;">
                 
                 <!-- 预估奖励 -->
-                <div style="background-color: #f0fdf4; border-radius: 8px; padding: 16px; margin: 16px 0;">
-                    <h3 style="margin-bottom: 8px;">预估奖励</h3>
-                    <div style="font-size: 18px; font-weight: 700; color: #2ecc71;">预计可得积分 10</div>
+                <div style="background: linear-gradient(135deg, #f0fdf4, #dcfce7); border-radius: 16px; padding: 20px; margin: 20px 0; box-shadow: 0 4px 16px rgba(76, 175, 80, 0.1); border: 1px solid #bbf7d0;">
+                    <h3 style="margin-bottom: 12px; color: var(--text-dark); font-size: 18px; font-weight: 600;">预估奖励</h3>
+                    <div style="font-size: 24px; font-weight: 700; color: #22c55e; text-shadow: 0 2px 4px rgba(34, 197, 94, 0.2);">预计可得积分 10</div>
+                    <div style="font-size: 14px; color: #666; margin-top: 4px;">每发布一件闲置物品，为地球减少碳排放</div>
                 </div>
                 
                 <!-- 立即发布按钮 -->
-                <button class="btn" onclick="submitForm()">立即发布</button>
+                <button class="btn" onclick="submitForm()" style="margin-top: 8px;">立即发布</button>
                 
-                <p style="text-align: center; font-size: 12px; color: #999; margin-top: 12px;">发布即代表您同意我们的<a href="#" onclick="alert('社区准则内容（暂略）'); return false;">社区准则</a></p>
+                <p style="text-align: center; font-size: 14px; color: #64748b; margin-top: 16px; line-height: 1.4;">发布即代表您同意我们的<a href="#" onclick="alert('社区准则内容（暂略）'); return false;" style="color: #22c55e; text-decoration: none; font-weight: 500;">社区准则</a></p>
             </div>
         </div>
         
         <!-- 未登录状态内容 -->
-        <div id="publishLoginPrompt" style="text-align: center; padding: 60px 20px; background-color: white; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-            <span style="font-size: 48px;">📦</span>
-            <p style="font-size: 18px; margin: 20px 0;">登录后即可发布绿色闲置</p>
-            <button style="background-color: #2ecc71; color: white; border: none; border-radius: 8px; padding: 14px 32px; font-size: 16px; font-weight: 500; cursor: pointer; min-height: 44px; min-width: 120px;" onclick="window.location.href='login.html'">去登录</button>
+        <div id="publishLoginPrompt" style="text-align: center; padding: 80px 30px; background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(240, 253, 244, 0.95)); border-radius: 20px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.5);">
+            <span style="font-size: 80px; display: block; margin-bottom: 32px; animation: float 3s ease-in-out infinite;">📦</span>
+            <h3 style="font-size: 24px; font-weight: 600; color: var(--text-dark); margin-bottom: 16px;">发布绿色闲置</h3>
+            <p style="font-size: 16px; color: #64748b; margin-bottom: 40px; line-height: 1.5; max-width: 280px; margin-left: auto; margin-right: auto;">登录后即可发布您的闲置物品，为地球减碳，获得绿分奖励</p>
+            <button style="background: linear-gradient(135deg, #22c55e, #16a34a); color: white; border: none; border-radius: 16px; padding: 18px 40px; font-size: 18px; font-weight: 600; cursor: pointer; min-height: 56px; min-width: 160px; box-shadow: 0 4px 20px rgba(34, 197, 94, 0.3); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); letter-spacing: 0.02em;" onclick="window.location.href='login.html'">去登录</button>
+            <p style="font-size: 14px; color: #94a3b8; margin-top: 24px;">还没有账号？<a href="register.html" style="color: #22c55e; text-decoration: none; font-weight: 500;">立即注册</a></p>
         </div>
         
         <script>
@@ -458,13 +525,28 @@
                 console.warn('未找到文件上传控件或控件不在 DOM 中，将视为未选择图片');
             }
             
-            if (!itemName) {
-                alert('请输入物品名称');
+            // 表单验证
+            if (!itemName || !itemName.trim()) {
+                showToast('请输入物品名称', 'error');
+                document.getElementById('itemName').focus();
                 return;
             }
             
             if (!itemCategory) {
-                alert('请选择类别');
+                showToast('请选择类别', 'error');
+                document.getElementById('itemCategory').focus();
+                return;
+            }
+            
+            if (!itemCondition || !itemCondition.trim()) {
+                showToast('请描述物品状况', 'error');
+                document.getElementById('itemCondition').focus();
+                return;
+            }
+            
+            if (!itemPrice || itemPrice <= 0) {
+                showToast('请输入有效的价格', 'error');
+                document.getElementById('itemPrice').focus();
                 return;
             }
             
@@ -481,12 +563,10 @@
                 const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
                 
                 if (!isLoggedIn || !username) {
-                    alert('请先登录');
-                    if (submitBtn) {
-                        submitBtn.textContent = '立即发布';
-                        submitBtn.disabled = false;
-                        submitBtn.classList.remove('btn-loading');
-                    }
+                    showToast('请先登录', 'error');
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 1500);
                     return;
                 }
                 
@@ -495,6 +575,30 @@
                 
                 if (fileInput && fileInput.files && fileInput.files.length > 0) {
                     const file = fileInput.files[0];
+                    
+                    // 检查文件大小
+                    if (file.size > 5 * 1024 * 1024) {
+                        showToast('图片大小不能超过 5MB', 'error');
+                        if (submitBtn) {
+                            submitBtn.textContent = '立即发布';
+                            submitBtn.disabled = false;
+                            submitBtn.classList.remove('btn-loading');
+                        }
+                        return;
+                    }
+                    
+                    // 检查文件类型
+                    const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+                    if (!validTypes.includes(file.type)) {
+                        showToast('只支持 JPG、PNG、GIF 和 WebP 格式的图片', 'error');
+                        if (submitBtn) {
+                            submitBtn.textContent = '立即发布';
+                            submitBtn.disabled = false;
+                            submitBtn.classList.remove('btn-loading');
+                        }
+                        return;
+                    }
+                    
                     const fileExt = file.name.split('.').pop();
                     const fileName = `${Date.now()}_${Math.random().toString(36).substring(2)}.${fileExt}`;
                     
@@ -524,9 +628,9 @@
                 
                 // 准备提交数据
                 const itemData = {
-                    name: itemName,
+                    name: itemName.trim(),
                     category: itemCategory,
-                    condition: itemCondition,
+                    condition: itemCondition.trim(),
                     price: itemPrice,
                     seller: username,
                     image_url: imageUrl,
@@ -542,15 +646,49 @@
                 
                 if (error) {
                     console.error('提交失败:', error);
-                    alert('发布失败，请稍后重试');
+                    throw new Error('发布失败，请稍后重试');
+                }
+                
+                // 增加用户积分
+                let pointsAdded = false;
+                try {
+                    const { data: profileData, error: profileError } = await supabaseClient
+                        .from('profiles')
+                        .select('id')
+                        .eq('username', username)
+                        .single();
                     
-                    // 恢复按钮状态
-                    if (submitBtn) {
-                        submitBtn.textContent = '立即发布';
-                        submitBtn.disabled = false;
-                        submitBtn.classList.remove('btn-loading');
+                    if (profileError) {
+                        console.error('获取用户ID失败:', profileError);
+                    } else {
+                        // 使用 parseInt() 显式将 profileData.id 转换为整数类型
+                        const userId = parseInt(profileData?.id);
+                        
+                        // 确保调用 supabaseClient.rpc('handle_add_points', ...) 时传递的是转换后的整数 userId
+                        const { error: rpcError } = await supabaseClient.rpc('handle_add_points', { 
+                            user_id: userId, 
+                            amount: 10 
+                        });
+                        
+                        if (rpcError) {
+                            console.error('RPC 调用失败:', rpcError);
+                        } else {
+                            // 更新 localStorage 中的 userPoints
+                            const { data: newProfileData } = await supabaseClient
+                                .from('profiles')
+                                .select('points')
+                                .eq('username', username)
+                                .single();
+                            
+                            if (newProfileData) {
+                                localStorage.setItem('userPoints', newProfileData.points);
+                                console.log('积分更新成功，当前积分:', newProfileData.points);
+                                pointsAdded = true;
+                            }
+                        }
                     }
-                    return;
+                } catch (pointsError) {
+                    console.error('积分更新异常:', pointsError);
                 }
                 
                 // 显示成功状态
@@ -560,14 +698,51 @@
                     submitBtn.classList.add('btn-success');
                 }
                 
-                // 延迟后跳转到首页
+                // 显示成功提示
+                if (pointsAdded) {
+                    showToast('发布成功！获得 10 绿分奖励！', 'success');
+                } else {
+                    showToast('发布成功！', 'success');
+                }
+                
+                // 延迟后重置表单
                 setTimeout(() => {
-                    window.location.href = 'index.html';
-                }, 1500);
+                    if (submitBtn) {
+                        submitBtn.textContent = '立即发布';
+                        submitBtn.classList.remove('btn-success');
+                        submitBtn.disabled = false;
+                    }
+                    
+                    // 重置表单
+                    const form = document.getElementById('publishForm');
+                    if (form) {
+                        form.reset();
+                    }
+                    
+                    // 重置预览区域
+                    const photoPreview = document.getElementById('photoPreview');
+                    if (photoPreview) {
+                        const previewContent = photoPreview.querySelector('.preview-content');
+                        if (previewContent) {
+                            previewContent.innerHTML = `
+                                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="upload-icon"><path d="M16 16v1a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-1"></path><path d="M8 16s-4-4-4-8a4 4 0 0 1 8 0c0 4-4 8-4 8"></path><path d="M12 12v6"></path><path d="m15 15-3-3-3 3"></path></svg>
+                                <h3>添加照片</h3>
+                                <p style="color: #666; font-size: 14px; margin: 8px 0 16px;">点击或拖拽图片至此</p>
+                                <p style="color: #999; font-size: 12px; margin-bottom: 24px;">上传一张清晰的物品照片</p>
+                                <button class="upload-btn" onclick="event.stopPropagation(); document.getElementById('imageUpload').click()">选择图片</button>
+                            `;
+                        }
+                        photoPreview.classList.remove('has-image');
+                        document.getElementById('fileName').textContent = '未选择文件';
+                        if (fileInput) {
+                            fileInput.value = '';
+                        }
+                    }
+                }, 3000);
                 
             } catch (error) {
                 console.error('提交异常:', error);
-                alert(error.message || '发布失败，请稍后重试');
+                showToast(error.message || '发布失败，请稍后重试', 'error');
                 
                 // 恢复按钮状态
                 if (submitBtn) {
@@ -577,6 +752,109 @@
                 }
             }
         }
+        
+        // 添加 Toast 通知函数
+        function showToast(message, type = 'info') {
+            // 创建 Toast 容器
+            let toastContainer = document.getElementById('toastContainer');
+            if (!toastContainer) {
+                toastContainer = document.createElement('div');
+                toastContainer.id = 'toastContainer';
+                toastContainer.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    z-index: 9999;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 8px;
+                    pointer-events: none;
+                `;
+                document.body.appendChild(toastContainer);
+            }
+            
+            // 创建 Toast 元素
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                background: white;
+                border-radius: 12px;
+                padding: 16px 20px;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                font-size: 14px;
+                font-weight: 500;
+                pointer-events: auto;
+                animation: toast-in 0.3s ease forwards;
+                max-width: 320px;
+                border-left: 4px solid #22c55e;
+            `;
+            
+            // 设置不同类型的样式
+            if (type === 'error') {
+                toast.style.borderLeftColor = '#ef4444';
+            } else if (type === 'success') {
+                toast.style.borderLeftColor = '#22c55e';
+            } else if (type === 'warning') {
+                toast.style.borderLeftColor = '#f59e0b';
+            }
+            
+            // 添加图标
+            let icon = 'ℹ️';
+            if (type === 'error') {
+                icon = '❌';
+            } else if (type === 'success') {
+                icon = '✅';
+            } else if (type === 'warning') {
+                icon = '⚠️';
+            }
+            
+            toast.innerHTML = `
+                <span style="font-size: 18px;">${icon}</span>
+                <span>${message}</span>
+            `;
+            
+            // 添加到容器
+            toastContainer.appendChild(toast);
+            
+            // 3秒后移除
+            setTimeout(() => {
+                toast.style.animation = 'toast-out 0.3s ease forwards';
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
+                    }
+                }, 300);
+            }, 3000);
+        }
+        
+        // 添加 Toast 动画
+        const toastStyle = document.createElement('style');
+        toastStyle.textContent = `
+            @keyframes toast-in {
+                from {
+                    opacity: 0;
+                    transform: translateY(-20px) scale(0.95);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0) scale(1);
+                }
+            }
+            @keyframes toast-out {
+                from {
+                    opacity: 1;
+                    transform: translateY(0) scale(1);
+                }
+                to {
+                    opacity: 0;
+                    transform: translateY(-20px) scale(0.95);
+                }
+            }
+        `;
+        document.head.appendChild(toastStyle);
     </script>
     <script src="js/footer.js"></script>
 </body>
